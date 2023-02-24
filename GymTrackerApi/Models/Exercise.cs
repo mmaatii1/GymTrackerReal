@@ -1,6 +1,6 @@
 ﻿namespace GymTrackerApi.Models
 {
-    public class CoreOfExercise
+    public class Exercise
     {
         public int Id { get; set; }
         public Muscle MuscleGroup { get; set; } 

@@ -6,7 +6,7 @@
         {
             get; set;
         }
-        public CoreOfExercise CoreOfExercise { get; set; }
+        public Exercise CoreOfExercise { get; set; }
         public double Repetitions { get; set; }
         public byte Sets { get; set; }
         public double Weight { get; set; }
