@@ -1,10 +1,14 @@
+using AutoMapper;
 using GymTrackerApiReal.Data;
+using GymTrackerApiReal.Interfaces;
+using GymTrackerApiReal.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +21,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#region services
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+#endregion
+
 #region setupDb
-
-
 builder.Services.AddDbContext<TrackingDbContext>
     (o => o.UseSqlServer(connectionString: "Server=localhost\\SQLEXPRESS01;Database=master;TrustServerCertificate=True;Integrated Security=true; Initial Catalog = Tracker"));
 #endregion
@@ -43,19 +50,17 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", (HttpContext httpContext) =>
+app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IMapper mapper )  =>
 {
-    httpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+    var muscle = new Muscle() { Id = 1, Name = "Klata", MainMasculeGroup = MainMuscleGroup.Chest };
+    var exerices = new Exercise() { Id = 1, Name = "Wyciskanie", Muscle = muscle };
+    var specificEx = new SpecificExercise() { Id = 1, Exercise = exerices, Repetitions = 5, Sets = 5, Weight = 60 };
+    var listOf = new List<SpecificExercise>() { specificEx };
+    var newCustomWorkout = new CustomWorkout() { DateOfWorkout = DateTime.Now, Id = 1, Name = "Mega workout", Exercises = listOf };
 
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    return Results.Ok(newCustomWorkout);
+
+    
 })
 .WithName("GetWeatherForecast")
 .RequireAuthorization();
