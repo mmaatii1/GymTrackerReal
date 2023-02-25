@@ -1,5 +1,8 @@
+using GymTrackerApi.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 
@@ -14,6 +17,18 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#region setupDb
+var sqlConnBuilder = new SqlConnectionStringBuilder();
+
+sqlConnBuilder.ConnectionString = builder.
+    Configuration.
+    GetConnectionString("ConnectionStrings");
+sqlConnBuilder.UserID = builder.Configuration["UserId"];
+sqlConnBuilder.Password = builder.Configuration["Password"];
+
+builder.Services.AddDbContext<TrackingDbContext>
+    (o => o.UseSqlServer(sqlConnBuilder.ConnectionString));
+#endregion
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
