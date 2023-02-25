@@ -50,7 +50,7 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IMapper mapper )  =>
+app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {
     var muscle = new Muscle() { Id = 1, Name = "Klata", MainMasculeGroup = MainMuscleGroup.Chest };
     var exerices = new Exercise() { Id = 1, Name = "Wyciskanie", Muscle = muscle };
@@ -60,10 +60,9 @@ app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericReposit
 
     return Results.Ok(newCustomWorkout);
 
-    
+
 })
-.WithName("GetWeatherForecast")
-.RequireAuthorization();
+.WithName("GetWeatherForecast");
 
 app.Run();
 
