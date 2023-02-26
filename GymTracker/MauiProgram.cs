@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using GymTracker.Services;
+using GymTracker.Models;
+using GymTracker.Views;
 
 namespace GymTracker;
 
@@ -16,9 +19,20 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
+        builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+        builder.Services.AddSingleton<IGeolocation>(Geolocation.Default);
+        builder.Services.AddSingleton<IHttpsClientHandlerService, HttpsClientHandlerService>();
+        builder.Services.AddSingleton<IRestService<CustomWorkout>, RestService>();
+        builder.Services.AddSingleton<IWorkoutService, WorkoutService>();
+
+        builder.Services.AddSingleton<MainPage>();
+
+        builder.Services.AddTransient<CustomWorkoutDetailsViewModel>();
+        builder.Services.AddTransient<CustomWorkoutViewModel>();
+        builder.Services.AddTransient<DetailsPage>();
 
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 		//Dependencies
 
