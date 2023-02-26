@@ -57,8 +57,8 @@ app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericReposit
     var specificEx = new SpecificExercise() { Id = 1, Exercise = exerices, Repetitions = 5, Sets = 5, Weight = 60 };
     var listOf = new List<SpecificExercise>() { specificEx };
     var newCustomWorkout = new CustomWorkout() { DateOfWorkout = DateTime.Now, Id = 1, Name = "Mega workout", Exercises = listOf };
-
-    return Results.Ok(newCustomWorkout);
+    var listOfCustomWorkout = new List<CustomWorkout>() { newCustomWorkout };
+    return Results.Ok(listOfCustomWorkout);
 
 
 })
