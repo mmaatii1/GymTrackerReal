@@ -18,6 +18,7 @@ namespace GymTracker.ViewModels
         [ObservableProperty]
         bool isRefreshing;
 
+
         [RelayCommand]
         async Task GetWorkoutsAsync()
         {

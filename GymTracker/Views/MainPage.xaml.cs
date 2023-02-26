@@ -1,10 +1,12 @@
+using GymTracker.ViewModels;
+
 namespace GymTracker.Views;
 
 public partial class MainPage : ContentPage
 {
-	public MainPage(CustomWorkoutViewModel viewModel)
+	public MainPage(MainPageViewModel viewModel)
 	{
 		InitializeComponent();
-		BindingContext= viewModel;
+		BindingContext = viewModel;
 	}
 }

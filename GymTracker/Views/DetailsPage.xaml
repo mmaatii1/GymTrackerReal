@@ -10,7 +10,7 @@
     <ScrollView>
         <Grid RowDefinitions="Auto,Auto,*, Auto">
             <BoxView
-                BackgroundColor="{StaticResource Primary}"
+                BackgroundColor="{StaticResource DarkBackground}"
                 Grid.RowSpan="3"
                 HorizontalOptions="Fill"
                 VerticalOptions="Fill"/>
