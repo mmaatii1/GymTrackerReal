@@ -5,14 +5,13 @@
              xmlns:model ="clr-namespace:GymTracker.Models"
              xmlns:viewmodel ="clr-namespace:GymTracker.ViewModels"
              x:DataType="viewmodel:CustomWorkoutViewModel"
-             Title="Workouts">
+             Title="Workouts"
+             BackgroundColor="{StaticResource DarkBackground}">
     <Grid
-        ColumnDefinitions="*,*"
-        ColumnSpacing="5"
+        ColumnDefinitions="*"
         RowDefinitions="*,Auto"
         RowSpacing="0">
         <RefreshView
-            Grid.ColumnSpan="2"
             Command="{Binding GetWorkoutsCommand}"
             IsRefreshing="{Binding IsRefreshing}">
             <ContentView
@@ -20,35 +19,39 @@
                 <CollectionView
                     ItemsSource="{Binding Workouts}"
                     SelectionMode="None">
-                    <!--<CollectionView.EmptyView>
-                        <StackLayout Padding="100">
-                            <Image
-                                HorizontalOptions="Center"
-                                Source="nodata.png"
-                                HeightRequest="160"
-                                WidthRequest="160"
-                                VerticalOptions="Center" />
-                        </StackLayout>
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout  Orientation="Horizontal" Span="3"/>
-                    </CollectionView.ItemsLayout>-->
+                    
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:CustomWorkout">
-                            <Grid Padding="10">
-                                <Frame HeightRequest="125" Style="{StaticResource CardView}">
+                            <Grid  BackgroundColor="{StaticResource DarkBackground}">
+                                <VerticalStackLayout>
+                                    <Label Style="{StaticResource LargeLabel}" Text="{Binding Name}" />
+                                </VerticalStackLayout>
+                                <Frame BorderColor="{StaticResource Accent}" BackgroundColor="#0C090D" HasShadow="True"  Padding="15" >
                                     <Frame.GestureRecognizers>
                                         <TapGestureRecognizer 
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CustomWorkoutViewModel}}, Path=GoToDetailsCommand}"
                                             CommandParameter="{Binding .}"/>
                                     </Frame.GestureRecognizers>
-                                    <Grid Padding="0" ColumnDefinitions="*">
-                                        <VerticalStackLayout
+                                    <Grid  Margin="0,0,0,0"  ColumnDefinitions="Auto,*,Auto">
+                                        <HorizontalStackLayout Grid.Column="0">
+                                            <Label TextColor="White"  Style="{StaticResource LargeLabel}" Text="{Binding Id, StringFormat='{0}.'}"/>
+                                        </HorizontalStackLayout>
+                                        <VerticalStackLayout 
+                                            Padding="5,0,0,0"
                                             Grid.Column="1"
-                                            VerticalOptions="Center"
-                                            Padding="10">
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Name}" />
-                                            <Label Style="{StaticResource MediumLabel}" Text="{Binding DateOfWorkout}" />
+                                            VerticalOptions="Center">
+                                            <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Name}"/>
+                                            <Label TextColor="White"  Style="{StaticResource SmallLabel}" Text="{Binding DateOfWorkout}" />
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout 
+                                            VerticalOptions="CenterAndExpand"
+                                            HorizontalOptions="End"
+                                            Margin="0,0,5,0"
+                                            Grid.Column="3">
+                                            <Label 
+                                                FontSize="24"
+                                                TextColor="{StaticResource Accent}"
+                                                Text="&#x2794;"/>
                                         </VerticalStackLayout>
                                     </Grid>
                                 </Frame>
@@ -64,6 +67,7 @@
             Grid.Column="0"
             Margin="8"
             Command="{Binding GetWorkoutsCommand}"
+            BackgroundColor="{StaticResource Accent}"
             IsEnabled="{Binding IsNotBusy}"
             Text="Get Workouts" />
 
@@ -73,7 +77,7 @@
             HorizontalOptions="Fill"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
-            Color="{StaticResource Primary}"
+            Color="{StaticResource Accent}"
             VerticalOptions="Center" />
     </Grid>
 </ContentPage>

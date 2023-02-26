@@ -8,92 +8,43 @@
     Title="{Binding CustomWorkout.Name}"
     x:DataType="viewmodel:CustomWorkoutDetailsViewModel">
     <ScrollView>
-        <Grid RowDefinitions="Auto,Auto,*, Auto">
-            <BoxView
-                BackgroundColor="{StaticResource DarkBackground}"
-                Grid.RowSpan="3"
-                HorizontalOptions="Fill"
-                VerticalOptions="Fill"/>
-
-            <Border StrokeShape="RoundRectangle 80"
-                    Stroke="White"
-                    StrokeThickness="6"
-                    HeightRequest="160"
-                    WidthRequest="160"
-                    Margin="0,8,0,0"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center">
-                <Image Aspect="AspectFill"
-                        HeightRequest="160"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        WidthRequest="160"/>
-            </Border>
-
-            <Label Style="{StaticResource LargeLabel}" 
-                   Grid.Row="1"
-                   TextColor="White"
-                   FontAttributes="Bold"
-                   Text="{Binding CustomWorkout.DateOfWorkout}" 
-                   HorizontalOptions="Center"
-                   Margin="0,0,0,8"/>
-
-            <VerticalStackLayout Grid.Row="2" Padding="10" Spacing="10">
-                <!-- Add this -->
-                <Button Text="Show on Map" 
-                        HorizontalOptions="Center" 
-                        WidthRequest="200" 
-                        Margin="8"
-                        Style="{StaticResource ButtonOutline}"/>
-
-                <Label Style="{StaticResource MediumLabel}" Text="{Binding CustomWorkout.Name}" />
-
-                <CollectionView
-                    ItemsSource="{Binding CustomWorkout.Exercises}"
-                    SelectionMode="None">
-                    <!--<CollectionView.EmptyView>
-                        <StackLayout Padding="100">
-                            <Image
-                                HorizontalOptions="Center"
-                                Source="nodata.png"
-                                HeightRequest="160"
-                                WidthRequest="160"
-                                VerticalOptions="Center" />
-                        </StackLayout>
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout  Orientation="Horizontal" Span="3"/>
-                    </CollectionView.ItemsLayout>-->
-                    <CollectionView.ItemTemplate>
+        <VerticalStackLayout BackgroundColor="#0C090D" >
+            <CollectionView
+                    ItemsSource="{Binding CustomWorkout.Exercises}">
+                <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:SpecificExercise">
-                            <Grid Padding="10">
-                                <Frame HeightRequest="170" Style="{StaticResource CardView}">
-                                    <!--<Frame.GestureRecognizers>
-                                    <TapGestureRecognizer 
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CustomWorkoutViewModel}}, Path=GoToDetailsCommand}"
-                                            CommandParameter="{Binding .}"/>
-                                </Frame.GestureRecognizers>-->
-                                    <Grid Padding="0" ColumnDefinitions="*">
-                                        <VerticalStackLayout
-                                            Grid.Column="1"
-                                            VerticalOptions="Center"
-                                            Padding="10">
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Sets}" />
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Repetitions}" />
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Weight}" />
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Exercise.Name}" />
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Exercise.Muscle.Name}" />
-                                            <Label Style="{StaticResource LargeLabel}" Text="{Binding Exercise.Muscle.MainMasculeGroup}" />
-
-                                        </VerticalStackLayout>
-                                    </Grid>
-                                </Frame>
-                            </Grid>
-                        </DataTemplate>
+                        <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
+                            <Grid  BackgroundColor="#0C090D" RowDefinitions="Auto,Auto">
+                                <HorizontalStackLayout Grid.Row="0" >
+                                    <Label Style="{StaticResource MicroLabel}"
+                                       TextColor="White" Text="{Binding Exercise.Muscle.MainMasculeGroup
+                                    , StringFormat='Main Trained: {0}'}" />
+                                </HorizontalStackLayout>
+                                <Grid Grid.Row="1"  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                                    <VerticalStackLayout  Grid.Column="0">
+                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Exercise.Name}" />
+                                    </VerticalStackLayout >
+                                    <VerticalStackLayout  Grid.Column="1">
+                                        <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text=" &#x2794; " />
+                                    </VerticalStackLayout >
+                                    <VerticalStackLayout  Grid.Column="2">
+                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Weight, StringFormat='{0}kg '}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout  Grid.Column="3">
+                                        <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text=" &#x2794; " />
+                                    </VerticalStackLayout >
+                                    <VerticalStackLayout  Grid.Column="4">
+                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Sets, StringFormat='{0}x'}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout  Grid.Column="5">
+                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Repetitions}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                        </Grid>
+                        </Frame>
+                    </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
             </VerticalStackLayout>
-
-        </Grid>
     </ScrollView>
 </ContentPage>

@@ -53,11 +53,15 @@ var summaries = new[]
 app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {
     var muscle = new Muscle() { Id = 1, Name = "Klata", MainMasculeGroup = MainMuscleGroup.Chest };
+    var muscle2 = new Muscle() { Id = 2, Name = "Plery", MainMasculeGroup = MainMuscleGroup.Back };
     var exerices = new Exercise() { Id = 1, Name = "Wyciskanie", Muscle = muscle };
+    var exerices2 = new Exercise() { Id = 2, Name = "Martwy", Muscle = muscle2 };
     var specificEx = new SpecificExercise() { Id = 1, Exercise = exerices, Repetitions = 5, Sets = 5, Weight = 60 };
-    var listOf = new List<SpecificExercise>() { specificEx };
+    var specificEx2 = new SpecificExercise() { Id = 2, Exercise = exerices2, Repetitions = 5, Sets = 5, Weight = 100 };
+    var listOf = new List<SpecificExercise>() { specificEx,specificEx2 };
     var newCustomWorkout = new CustomWorkout() { DateOfWorkout = DateTime.Now, Id = 1, Name = "Mega workout", Exercises = listOf };
-    var listOfCustomWorkout = new List<CustomWorkout>() { newCustomWorkout };
+    var newCustomWorkout2 = new CustomWorkout() { DateOfWorkout = DateTime.MaxValue, Id = 2, Name = "Sztos workout", Exercises = listOf };
+    var listOfCustomWorkout = new List<CustomWorkout>() { newCustomWorkout, newCustomWorkout2 };
     return Results.Ok(listOfCustomWorkout);
 
 
