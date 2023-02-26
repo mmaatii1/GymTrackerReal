@@ -8,7 +8,6 @@
              Title="Workouts">
 
     <Grid>
-        <Label Text="Idz"></Label>
         <Button
             Grid.Row="1"
             Grid.Column="0"
@@ -16,6 +15,13 @@
             IsEnabled="{Binding IsNotBusy}"
             Command="{Binding GoToTrainingsCommand}"
             Text="Get Workouts" />
+        <Button
+            Grid.Row="2"
+            Grid.Column="0"
+            Margin="8"
+            IsEnabled="{Binding IsNotBusy}"
+            Command="{Binding AddNewTraningCommand}"
+            Text="Add trening" />
     </Grid>
 
 
