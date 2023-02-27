@@ -1,4 +1,5 @@
-﻿using GymTrackerApiReal.Dtos.Exercise;
+﻿using GymTrackerApiReal.Dtos.CustomWorkout;
+using GymTrackerApiReal.Dtos.Exercise;
 
 namespace GymTrackerApiReal.Dtos.SpecificExercise
 {

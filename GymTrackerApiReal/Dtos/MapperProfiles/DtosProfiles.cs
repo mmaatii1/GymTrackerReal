@@ -18,7 +18,7 @@ namespace GymTrackerApiReal.Dtos.MapperProfiles
             CreateMap<Models.Exercise, ExerciseCreateUpdateDto>().ReverseMap();
             CreateMap<Models.Exercise, ExerciseReadDto>().ReverseMap();
 
-            CreateMap<Models.Muscle, MuscleReadDto>().ReverseMap();
+            CreateMap<Models.Muscle, MuscleReadDto>().ReverseMap(); 
             CreateMap<Models.Muscle, MuscleUpdateCreateDto>().ReverseMap();
 
             CreateMap<Models.SpecificExercise, SpecificExerciseUpdateCreateDto>().ReverseMap();

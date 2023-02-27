@@ -5,23 +5,25 @@
              xmlns:model ="clr-namespace:GymTracker.Models"
              xmlns:viewmodel ="clr-namespace:GymTracker.ViewModels"
              x:DataType="viewmodel:MainPageViewModel"
-             Title="Workouts">
-
-    <Grid>
+             Title="GymTracker">
+    
+    <Grid BackgroundColor="{StaticResource DarkBackground}" RowDefinitions="*,*">
+        <ContentView Grid.Row="0">
         <Button
-            Grid.Row="1"
-            Grid.Column="0"
-            Margin="8"
+            Margin="50"
             IsEnabled="{Binding IsNotBusy}"
+            BackgroundColor="{StaticResource Accent}"
             Command="{Binding GoToTrainingsCommand}"
             Text="Get Workouts" />
+        </ContentView>
+        <ContentView Grid.Row="1">
         <Button
-            Grid.Row="2"
-            Grid.Column="0"
-            Margin="8"
+            Margin="50"
             IsEnabled="{Binding IsNotBusy}"
+            BackgroundColor="{StaticResource Accent}"
             Command="{Binding AddNewTraningCommand}"
-            Text="Add trening" />
+            Text="Add training" />
+        </ContentView>
     </Grid>
 
 

@@ -3,7 +3,7 @@
     public class CustomWorkout
     {
         public int Id { get; set; }
-        public List<SpecificExercise> Exercises { get; set; }
+        public ICollection<SpecificExercise> CustomWorkoutSpecificExercises { get; set; }
         public DateTime DateOfWorkout { get; set; }
         public string Name { get; set; }
     }

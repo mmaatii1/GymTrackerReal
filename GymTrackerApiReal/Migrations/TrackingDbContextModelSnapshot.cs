@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GymTrackerApi.Migrations
+namespace GymTrackerApiReal.Migrations
 {
     [DbContext(typeof(TrackingDbContext))]
     partial class TrackingDbContextModelSnapshot : ModelSnapshot
@@ -22,7 +22,7 @@ namespace GymTrackerApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("GymTrackerApi.Models.CustomWorkout", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.CustomWorkout", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,7 +42,7 @@ namespace GymTrackerApi.Migrations
                     b.ToTable("CustomWorkouts");
                 });
 
-            modelBuilder.Entity("GymTrackerApi.Models.Exercise", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.Exercise", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,7 +64,7 @@ namespace GymTrackerApi.Migrations
                     b.ToTable("Exercises");
                 });
 
-            modelBuilder.Entity("GymTrackerApi.Models.Muscle", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.Muscle", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -84,7 +84,7 @@ namespace GymTrackerApi.Migrations
                     b.ToTable("Muscles");
                 });
 
-            modelBuilder.Entity("GymTrackerApi.Models.SpecificExercise", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.SpecificExercise", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -116,9 +116,9 @@ namespace GymTrackerApi.Migrations
                     b.ToTable("SpecificExercises");
                 });
 
-            modelBuilder.Entity("GymTrackerApi.Models.Exercise", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.Exercise", b =>
                 {
-                    b.HasOne("GymTrackerApi.Models.Muscle", "Muscle")
+                    b.HasOne("GymTrackerApiReal.Models.Muscle", "Muscle")
                         .WithMany()
                         .HasForeignKey("MuscleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -127,13 +127,13 @@ namespace GymTrackerApi.Migrations
                     b.Navigation("Muscle");
                 });
 
-            modelBuilder.Entity("GymTrackerApi.Models.SpecificExercise", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.SpecificExercise", b =>
                 {
-                    b.HasOne("GymTrackerApi.Models.CustomWorkout", null)
-                        .WithMany("Exercises")
+                    b.HasOne("GymTrackerApiReal.Models.CustomWorkout", null)
+                        .WithMany("CustomWorkoutSpecificExercises")
                         .HasForeignKey("CustomWorkoutId");
 
-                    b.HasOne("GymTrackerApi.Models.Exercise", "Exercise")
+                    b.HasOne("GymTrackerApiReal.Models.Exercise", "Exercise")
                         .WithMany()
                         .HasForeignKey("ExerciseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -142,9 +142,9 @@ namespace GymTrackerApi.Migrations
                     b.Navigation("Exercise");
                 });
 
-            modelBuilder.Entity("GymTrackerApi.Models.CustomWorkout", b =>
+            modelBuilder.Entity("GymTrackerApiReal.Models.CustomWorkout", b =>
                 {
-                    b.Navigation("Exercises");
+                    b.Navigation("CustomWorkoutSpecificExercises");
                 });
 #pragma warning restore 612, 618
         }
