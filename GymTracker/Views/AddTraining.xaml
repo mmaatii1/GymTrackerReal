@@ -2,11 +2,58 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              x:Class="GymTracker.Views.AddTraining"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+              xmlns:viewmodel="clr-namespace:GymTracker.ViewModels"
+                xmlns:model ="clr-namespace:GymTracker.Models"
+                x:DataType="viewmodel:CustomWorkoutAddViewModel"
              Title="AddTraining">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <StackLayout>
+        <SearchBar x:Name="searchBar"
+                   SearchCommand="{Binding PerformSearchCommand }"
+                   SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}"/>
+        <ListView x:Name="searchResults"
+                  ItemsSource="{Binding SearchResults}"
+                  >
+            <ListView.Behaviors>
+                <toolkit:EventToCommandBehavior
+                    x:TypeArguments="SelectedItemChangedEventArgs"
+                    EventName="ItemSelected"
+                    Command="{Binding PickedCommand}"
+                    />
+            </ListView.Behaviors>
+        </ListView>
+        <VerticalStackLayout>
+            <CollectionView
+                    ItemsSource="{Binding SelectedExercises}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Exercise">
+                        <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
+                            <Grid BackgroundColor="#0C090D" ColumnDefinitions="auto,auto">
+                                <VerticalStackLayout Grid.Column="0" >
+                                    <Label Style="{StaticResource MicroLabel}"
+                                       TextColor="White" Text="{Binding Name}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Entry Completed="Entry_Completed" TextColor="White" x:DataType="viewmodel:CustomWorkoutAddViewModel" Placeholder="5"
+                                         >
+                                      
+                                    </Entry>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Style="{StaticResource MicroLabel}"
+                                       TextColor="White" Text="dsadas"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+        <Button
+            Margin="50"
+            IsEnabled="{Binding IsNotBusy}"
+            BackgroundColor="{StaticResource Accent}"
+            Command="{Binding GetExercisesCommand}"
+            Text="Get Workouts" />
+    </StackLayout>
 </ContentPage>

@@ -29,7 +29,7 @@
                                 <Frame BorderColor="{StaticResource Accent}" BackgroundColor="#0C090D" HasShadow="True"  Padding="15" >
                                     <Frame.GestureRecognizers>
                                         <TapGestureRecognizer 
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CustomWorkoutViewModel}}, Path=GoToDetailsCommand}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:CustomWorkoutViewModel}}, Path=GoToDetailsOkCommand}"
                                             CommandParameter="{Binding .}"/>
                                     </Frame.GestureRecognizers>
                                     <Grid  Margin="0,0,0,0"  ColumnDefinitions="Auto,*,Auto">

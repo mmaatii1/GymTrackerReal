@@ -7,7 +7,7 @@ namespace GymTracker.ViewModels
     public partial class CustomWorkoutViewModel : BaseViewModel
     {
         public ObservableCollection<CustomWorkout> Workouts { get; } = new ObservableCollection<CustomWorkout>();
-        IWrapperService<CustomWorkout> _workoutService;
+         readonly IWrapperService<CustomWorkout> _workoutService;
         IConnectivity _connectivity;
         public CustomWorkoutViewModel(IWrapperService<CustomWorkout> workoutService, IConnectivity connectivity)
         {
@@ -34,7 +34,7 @@ namespace GymTracker.ViewModels
                 }
 
                 IsBusy = true;
-                var workouts = await _workoutService.GetWorkoutAsync();
+                var workouts = await _workoutService.GetAllAsync();
 
                 if (Workouts.Count != 0)
                 {
@@ -59,7 +59,7 @@ namespace GymTracker.ViewModels
             }
         }
         [RelayCommand]
-        async Task GoToDetails(CustomWorkout workout)
+        async Task GoToDetailsOk(CustomWorkout workout)
         {
             if (workout == null)
                 return;

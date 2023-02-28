@@ -33,7 +33,7 @@ namespace GymTracker.Services
         {
             Items = new List<TEntity>();
 
-            Uri uri = new Uri(string.Format(Constants.RestUrl, string.Empty));
+            Uri uri = new Uri(string.Format(Constants.RestUrl + typeof(TEntity).Name, string.Empty));
             try
             {
                 HttpResponseMessage response = await _client.GetAsync(uri);
