@@ -58,10 +58,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+
 
 app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
 {
@@ -83,8 +80,6 @@ app.MapPost("/api/customWorkout", async (CustomWorkoutCreateUpdateDto workout, I
     var specificExercises = await specExRepo.GetAsQueryable().Where(c => workout.SpecificExercisesIds.Contains(c.Id)).Include(c => c.Exercise).Include(c => c.Exercise.Muscle).ToListAsync();
     var toAdd = mapper.Map<CustomWorkout>(workout);
 
-    // Attach SpecificExercises entities
-    specificExercises.ForEach(se => specExRepo.Attach(se));
 
     toAdd.CustomWorkoutSpecificExercises = specificExercises;
     var added = await repo.AddAsync(toAdd);

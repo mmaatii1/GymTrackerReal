@@ -1,17 +1,14 @@
-﻿using GymTracker.Models;
-using System.Diagnostics;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text;
 
 namespace GymTracker.Services
 {
-    public class RestService : IRestService<CustomWorkout>
+    public class RestService<TEntity> : IRestService<TEntity> where TEntity : class
     {
         HttpClient _client;
         JsonSerializerOptions _serializerOptions;
         IHttpsClientHandlerService _httpsClientHandlerService;
 
-        public List<CustomWorkout> Items { get; private set; }
+        public List<TEntity> Items { get; private set; }
 
         public RestService(IHttpsClientHandlerService service)
         {
@@ -32,9 +29,9 @@ namespace GymTracker.Services
             };
         }
 
-        public async Task<List<CustomWorkout>> GetAllAsync()
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            Items = new List<CustomWorkout>();
+            Items = new List<TEntity>();
 
             Uri uri = new Uri(string.Format(Constants.RestUrl, string.Empty));
             try
@@ -43,7 +40,7 @@ namespace GymTracker.Services
                 if (response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
-                    Items = JsonSerializer.Deserialize<List<CustomWorkout>>(content, _serializerOptions);
+                    Items = JsonSerializer.Deserialize<List<TEntity>>(content, _serializerOptions);
                 }
             }
             catch (Exception ex)
@@ -54,13 +51,13 @@ namespace GymTracker.Services
             return Items;
         }
 
-        public async Task SaveAsync(CustomWorkout item, bool isNewItem = false)
+        public async Task SaveAsync(TEntity item, bool isNewItem = false)
         {
             Uri uri = new Uri(string.Format(Constants.RestUrl, string.Empty));
 
             try
             {
-                string json = JsonSerializer.Serialize<CustomWorkout>(item, _serializerOptions);
+                string json = JsonSerializer.Serialize<TEntity>(item, _serializerOptions);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = null;
@@ -94,7 +91,7 @@ namespace GymTracker.Services
             }
         }
 
-        public Task<CustomWorkout> GetByIdAsync(string id)
+        public Task<TEntity> GetByIdAsync(string id)
         {
             throw new NotImplementedException();
         }

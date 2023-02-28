@@ -1,9 +1,8 @@
 ﻿namespace GymTracker.Models
 {
-    public class CustomWorkout
+    public class CustomWorkout : BaseEntity
     {
-        public int Id { get; set; }
-        public List<SpecificExercise> Exercises { get; set; }
+        public List<SpecificExercise> CustomWorkoutSpecificExercises { get; set; }
         public DateTime DateOfWorkout { get; set; }
         public string Name { get; set; }
     }

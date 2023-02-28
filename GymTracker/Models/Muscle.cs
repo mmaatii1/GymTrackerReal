@@ -1,8 +1,7 @@
 ﻿namespace GymTracker.Models
 {
-    public class Muscle
+    public class Muscle : BaseEntity
     {
-        public int Id { get; set; }
         public MainMuscleGroup MainMasculeGroup { get; set; }
         public string Name { get; set; }
     }

@@ -22,8 +22,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
         builder.Services.AddSingleton<IGeolocation>(Geolocation.Default);
         builder.Services.AddSingleton<IHttpsClientHandlerService, HttpsClientHandlerService>();
-        builder.Services.AddSingleton<IRestService<CustomWorkout>, RestService>();
-        builder.Services.AddSingleton<IWorkoutService, WorkoutService>();
+        builder.Services.AddScoped(typeof(IRestService<>), typeof(RestService<>));
+        builder.Services.AddScoped(typeof(IWrapperService<>), typeof(WrapperService<>));
 
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddTransient<DetailsPage>();

@@ -7,9 +7,9 @@ namespace GymTracker.ViewModels
     public partial class CustomWorkoutViewModel : BaseViewModel
     {
         public ObservableCollection<CustomWorkout> Workouts { get; } = new ObservableCollection<CustomWorkout>();
-        IWorkoutService _workoutService;
+        IWrapperService<CustomWorkout> _workoutService;
         IConnectivity _connectivity;
-        public CustomWorkoutViewModel(IWorkoutService workoutService, IConnectivity connectivity)
+        public CustomWorkoutViewModel(IWrapperService<CustomWorkout> workoutService, IConnectivity connectivity)
         {
             Title = "WorkoutList";
             _workoutService = workoutService;
