@@ -37,31 +37,53 @@ namespace GymTracker.ViewModels
         [ObservableProperty]
         List<Exercise> selectedExercises;
 
-        [RelayCommand]
-        void PerformSearch(string query)
+        [ObservableProperty]
+        List<SpecificExercise> doneExercises;
+
+        [ObservableProperty]
+        Exercise editedExercise;
+
+        [ObservableProperty]
+        IList<Exercise> exercisesToPickFrom;
+
+      
+
+        public void SelectedExercise(int index)
         {
-            SearchResults = ExerciseCollection.Where(c=>c.Name.Contains(query)).Select(c=>c.Name).ToList();
+            SelectedExercises ??= new List<Exercise>();
+            var selectedItem = ExercisesToPickFrom[index];
+            EditedExercise = selectedItem;
+            SelectedExercises.Add(selectedItem);
+            selectedItem = null;
+            SearchResults = null;
         }
 
         [RelayCommand]
-        void OnPicked(SelectedItemChangedEventArgs e)
+        void ExerciseConfirm()
         {
-            SelectedExercises ??=new List<Exercise> ();
-            var selectedItem = e.SelectedItem as string;
-            var selectedItemAsObject = ExerciseCollection.Where(c => c.Name.Equals(selectedItem)).FirstOrDefault();
-            SelectedExercises.Add(selectedItemAsObject);
-            e = null;
-            SearchResults= null;
+            DoneExercises ??= new List<SpecificExercise>();
+            DoneExercises.Add(SpecificExercise);
+            SpecificExercise = null;
+            SelectedExercises= null;
         }
 
-        [RelayCommand]
-        void OnWeightEntry(EventArgs e)
+        public void OnWeightEntry(string e)
         {
             string text = e.ToString();
             SpecificExercise ??= new SpecificExercise();
-            SpecificExercise.Exercise = SelectedExercises[0];
+            SpecificExercise.Exercise = EditedExercise;
             SpecificExercise.Weight = int.Parse(text);
         }
+        public void OnSetsEntry(string e)
+        {
+            SpecificExercise.Sets = byte.Parse(e);
+        }
+        public void OnRepEntry(string e)
+        {
+            SpecificExercise.Repetitions= byte.Parse(e);
+        }
+
+        
 
         [RelayCommand]
         async Task GetExercises()
@@ -88,6 +110,8 @@ namespace GymTracker.ViewModels
                 foreach (var exercise in exercises)
                 {
                     ExerciseCollection.Add(exercise);
+                    ExercisesToPickFrom ??= new List<Exercise>();
+                    ExercisesToPickFrom.Add(exercise);
                 }
 
             }
@@ -101,10 +125,6 @@ namespace GymTracker.ViewModels
                 IsBusy = false;
                 IsRefreshing = false;
             }
-        }
-
-       
-
-        
+        }        
     }
 }

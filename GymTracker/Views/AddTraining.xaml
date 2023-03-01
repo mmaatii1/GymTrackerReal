@@ -8,40 +8,88 @@
                 x:DataType="viewmodel:CustomWorkoutAddViewModel"
              Title="AddTraining">
     <StackLayout>
-        <SearchBar x:Name="searchBar"
-                   SearchCommand="{Binding PerformSearchCommand }"
-                   SearchCommandParameter="{Binding Text, Source={x:Reference searchBar}}"/>
-        <ListView x:Name="searchResults"
-                  ItemsSource="{Binding SearchResults}"
-                  >
-            <ListView.Behaviors>
-                <toolkit:EventToCommandBehavior
-                    x:TypeArguments="SelectedItemChangedEventArgs"
-                    EventName="ItemSelected"
-                    Command="{Binding PickedCommand}"
-                    />
-            </ListView.Behaviors>
-        </ListView>
+        <Picker  Title="Select a exercise"
+            ItemsSource="{Binding ExercisesToPickFrom}"
+                 x:Name="ExPicker"
+                 SelectedItem="{Binding EditedExercise}"
+            SelectedIndexChanged="Picker_SelectedIndexChanged"
+            ItemDisplayBinding="{Binding Name }" />
+       
         <VerticalStackLayout>
             <CollectionView
                     ItemsSource="{Binding SelectedExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Exercise">
                         <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
-                            <Grid BackgroundColor="#0C090D" ColumnDefinitions="auto,auto">
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" BackgroundColor="#0C090D">
                                 <VerticalStackLayout Grid.Column="0" >
                                     <Label Style="{StaticResource MicroLabel}"
                                        TextColor="White" Text="{Binding Name}"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1">
-                                    <Entry Completed="Entry_Completed" TextColor="White" x:DataType="viewmodel:CustomWorkoutAddViewModel" Placeholder="5"
-                                         >
-                                      
-                                    </Entry>
+                                    <Entry x:Name="entry"
+                                    Placeholder="Enter text"
+                                    Completed="OnEntryCompleted"
+                                           MaxLength="2"
+                                           Keyboard="Telephone"
+                                           TextColor="White"
+                                           BackgroundColor="White"
+                                           VerticalOptions="End"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1">
+                                <VerticalStackLayout Grid.Column="2">
+                                    <Entry x:Name="entry1"
+                                    Placeholder="Enter text"
+                                    Completed="OnEntryCompleted2"
+                                           MaxLength="2"
+                                           Keyboard="Telephone"
+                                           TextColor="White"
+                                           BackgroundColor="White"
+                                           VerticalOptions="End"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout  Grid.Column="3">
+                                    <Entry x:Name="entry2"
+                                    Placeholder="Enter text"
+                                    Completed="OnEntryCompleted3"
+                                           MaxLength="2"
+                                           Keyboard="Telephone"
+                                           TextColor="White"
+                                           BackgroundColor="White"
+                                           VerticalOptions="End"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="4">
+                                   
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Button
+                                        Margin="0"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        Command="{Binding ExerciseConfirmCommand}"
+                                        Text="Confirm" />
+            <CollectionView
+                 ItemsSource="{Binding DoneExercises}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:SpecificExercise">
+                        <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" BackgroundColor="#0C090D">
+                                <VerticalStackLayout Grid.Column="0" >
                                     <Label Style="{StaticResource MicroLabel}"
-                                       TextColor="White" Text="dsadas"/>
+                                       TextColor="White" Text="{Binding Exercise.Name}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" >
+                                    <Label Style="{StaticResource MicroLabel}"
+                                       TextColor="White" Text="{Binding Weight}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" >
+                                    <Label Style="{StaticResource MicroLabel}"
+                                       TextColor="White" Text="{Binding Sets}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="3" >
+                                    <Label Style="{StaticResource MicroLabel}"
+                                       TextColor="White" Text="{Binding Repetitions}"/>
                                 </VerticalStackLayout>
                             </Grid>
                         </Frame>
@@ -49,6 +97,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
+     
         <Button
             Margin="50"
             IsEnabled="{Binding IsNotBusy}"

@@ -18,11 +18,22 @@ namespace GymTracker.ViewModels
         [ObservableProperty]
         bool isRefreshing;
 
+        [RelayCommand]
+        async Task ToCustomWorkout(CustomWorkout workout)
+        {
+            if (workout == null)
+                return;
+            var navigationParameter = new Dictionary<string, object>
+            {
+                { "CustomWorkout", workout }
+            };
+            await Shell.Current.GoToAsync(nameof(DetailsPage), navigationParameter);
+        }
 
         [RelayCommand]
         async Task GetWorkoutsAsync()
         {
-            if(IsBusy) return;
+            if (IsBusy) return;
 
             try
             {
@@ -58,16 +69,6 @@ namespace GymTracker.ViewModels
                 IsRefreshing = false;
             }
         }
-        [RelayCommand]
-        async Task GoToDetailsOk(CustomWorkout workout)
-        {
-            if (workout == null)
-                return;
-            var navigationParameter = new Dictionary<string, object>
-            {
-                { "CustomWorkout", workout }
-            };
-            await Shell.Current.GoToAsync(nameof(DetailsPage), navigationParameter);
-        }
+
     }
 }
