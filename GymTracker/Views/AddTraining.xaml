@@ -114,14 +114,14 @@
                                        TextColor="White" Text="{Binding Sets, StringFormat=' x {0} '}"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout VerticalOptions="Center" Grid.Column="4" >
-                                    <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text="&#x2794; " />
+                                    <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text=" &#x2794; " />
                                 </VerticalStackLayout>
                                 <HorizontalStackLayout Grid.Column="5" >
-                                    <CollectionView VerticalOptions="Center" ItemsLayout="HorizontalList"  ItemsSource="{Binding Repetitions}">
+                                    <CollectionView VerticalOptions="Center" ItemsLayout="HorizontalList"  ItemsSource="{Binding RepetitionsAsStrings}">
                                         <CollectionView.ItemTemplate>
                                             <DataTemplate >
                                                 <Label VerticalOptions="Center" Style="{StaticResource MediumLabel}"
-                                                 TextColor="White" Text="{Binding ., StringFormat='{0} -'}"/>
+                                                 TextColor="White" Text="{Binding .}"/>
                                             </DataTemplate>
                                         </CollectionView.ItemTemplate>
                                     </CollectionView>

@@ -6,5 +6,6 @@
         public double[] Repetitions { get; set; }
         public byte Sets { get; set; }
         public double Weight { get; set; }
+        public string[] RepetitionsAsStrings { get; set; }
     }
 }

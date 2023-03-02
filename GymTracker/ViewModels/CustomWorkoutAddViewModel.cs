@@ -112,6 +112,8 @@ namespace GymTracker.ViewModels
                 return 0;
                 
             }).ToArray();
+            var splittedRepsAsStrings = splittedReps.Select(c => c + " - ");
+            SpecificExerciseInEdit.RepetitionsAsStrings = splittedRepsAsStrings.ToArray();
             SpecificExerciseInEdit.Repetitions = splittedRepsAsDoubles;
             EnteredExerciseInput = e;
         }
