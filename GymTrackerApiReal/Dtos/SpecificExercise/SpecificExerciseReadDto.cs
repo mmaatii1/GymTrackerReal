@@ -10,7 +10,7 @@ namespace GymTrackerApiReal.Dtos.SpecificExercise
             get; set;
         }
         public ExerciseReadDto Exercise { get; set; }
-        public double Repetitions { get; set; }
+        public double[] Repetitions { get; set; }
         public byte Sets { get; set; }
         public double Weight { get; set; }
     }

@@ -1,4 +1,6 @@
-﻿namespace GymTrackerApiReal.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GymTrackerApiReal.Models
 {
     public class SpecificExercise
     {
@@ -7,7 +9,7 @@
             get; set;
         }
         public Exercise Exercise { get; set; }
-        public double Repetitions { get; set; }
+        public double[] Repetitions { get; set; }
         public byte Sets { get; set; }
         public double Weight { get; set; }
     }

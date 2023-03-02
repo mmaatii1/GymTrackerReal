@@ -5,59 +5,84 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
               xmlns:viewmodel="clr-namespace:GymTracker.ViewModels"
                 xmlns:model ="clr-namespace:GymTracker.Models"
+             xmlns:converters="clr-namespace:GymTracker.Converters"
                 x:DataType="viewmodel:CustomWorkoutAddViewModel"
              Title="AddTraining">
-    <StackLayout>
-        <Picker  Title="Select a exercise"
-            ItemsSource="{Binding ExercisesToPickFrom}"
-                 x:Name="ExPicker"
-                 SelectedItem="{Binding EditedExercise}"
-            SelectedIndexChanged="Picker_SelectedIndexChanged"
-            ItemDisplayBinding="{Binding Name }" />
-       
+    <ContentPage.Resources>
+        <converters:RemoveLastCharacterConverter x:Key="RemoveLastCharacterConverter" />
+    </ContentPage.Resources>
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior
+        EventName="Appearing"
+        Command="{Binding GetExercisesCommand}" />
+    </ContentPage.Behaviors>
+    <StackLayout BackgroundColor="#0C090D">
+        <SearchBar x:Name="searchBar"
+                   TextChanged="searchBar_TextChanged"
+                   BackgroundColor="#0C090D"
+                   TextColor="White"
+                   PlaceholderColor="White"
+                   Placeholder="Find exercise"
+                   CancelButtonColor="White"
+                   />
+        <ListView x:Name="searchResults"
+                  BackgroundColor="#0C090D"
+                  IsVisible="{Binding IsSearchResultVisible}"
+                  ItemsSource="{Binding SearchResults}"
+                  SeparatorColor="{StaticResource Accent}"
+                  >
+            <ListView.ItemTemplate VerticalOptions="Center">
+                <DataTemplate >
+                    <ViewCell>
+                        <Grid>
+                            <Frame VerticalOptions="Center" Padding="10"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}" >
+                                <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="White"></Label>
+                            </Frame>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.Behaviors>
+                <toolkit:EventToCommandBehavior
+                    x:TypeArguments="SelectedItemChangedEventArgs"
+                    EventName="ItemSelected"
+                    Command="{Binding PickedCommand}"
+                    />
+            </ListView.Behaviors>
+        </ListView>
+
         <VerticalStackLayout>
-            <CollectionView
+            <CollectionView 
                     ItemsSource="{Binding SelectedExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Exercise">
                         <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
-                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" BackgroundColor="#0C090D">
-                                <VerticalStackLayout Grid.Column="0" >
-                                    <Label Style="{StaticResource MicroLabel}"
-                                       TextColor="White" Text="{Binding Name}"/>
+                            <Grid ColumnDefinitions="Auto,Auto,Auto" BackgroundColor="#0C090D">
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="0" >
+                                    <Label Style="{StaticResource MediumLabel}"
+                                       TextColor="White" Text="{Binding Name , StringFormat='{0}'}"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1">
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="1" >
+                                    <Label Style="{StaticResource LargeLabel}"
+                                       TextColor="{StaticResource Accent}" Text="  &#x2794;   "/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="2">
+                                    <Frame Padding="0" IsClippedToBounds="True" CornerRadius="10">
                                     <Entry x:Name="entry"
-                                    Placeholder="Enter text"
+                                    Placeholder="50-5-5-5"
+                                           VerticalOptions="Center"
                                     Completed="OnEntryCompleted"
-                                           MaxLength="2"
+                                           TextChanged="entry_TextChanged"
+                                           MaxLength="50"
+                                           WidthRequest="150"
                                            Keyboard="Telephone"
-                                           TextColor="White"
-                                           BackgroundColor="White"
-                                           VerticalOptions="End"/>
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="2">
-                                    <Entry x:Name="entry1"
-                                    Placeholder="Enter text"
-                                    Completed="OnEntryCompleted2"
-                                           MaxLength="2"
-                                           Keyboard="Telephone"
-                                           TextColor="White"
-                                           BackgroundColor="White"
-                                           VerticalOptions="End"/>
-                                </VerticalStackLayout>
-                                <VerticalStackLayout  Grid.Column="3">
-                                    <Entry x:Name="entry2"
-                                    Placeholder="Enter text"
-                                    Completed="OnEntryCompleted3"
-                                           MaxLength="2"
-                                           Keyboard="Telephone"
-                                           TextColor="White"
-                                           BackgroundColor="White"
-                                           VerticalOptions="End"/>
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="4">
-                                   
+                                           TextColor="#0C090D"
+                                           ReturnType="Done"
+                                           IsSpellCheckEnabled="false"
+                                           HeightRequest="40"
+                                           BackgroundColor="{StaticResource Accent}"
+                                           />
+                                    </Frame>
                                 </VerticalStackLayout>
                             </Grid>
                         </Frame>
@@ -69,40 +94,46 @@
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding ExerciseConfirmCommand}"
                                         Text="Confirm" />
-            <CollectionView
+            
+            <CollectionView BackgroundColor="#0C090D"
                  ItemsSource="{Binding DoneExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:SpecificExercise">
                         <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
-                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto" BackgroundColor="#0C090D">
-                                <VerticalStackLayout Grid.Column="0" >
-                                    <Label Style="{StaticResource MicroLabel}"
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" BackgroundColor="#0C090D">
+                                <VerticalStackLayout VerticalOptions="Center"  Grid.Column="0" >
+                                    <Label  Style="{StaticResource MediumLabel}"
                                        TextColor="White" Text="{Binding Exercise.Name}"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1" >
-                                    <Label Style="{StaticResource MicroLabel}"
-                                       TextColor="White" Text="{Binding Weight}"/>
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="1" >
+                                    <Label VerticalOptions="Center" Style="{StaticResource MediumLabel}"
+                                       TextColor="White" Text="{Binding Weight, StringFormat=' {0}kg '}"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="2" >
-                                    <Label Style="{StaticResource MicroLabel}"
-                                       TextColor="White" Text="{Binding Sets}"/>
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="2" >
+                                    <Label VerticalOptions="Center" Style="{StaticResource MediumLabel}"
+                                       TextColor="White" Text="{Binding Sets, StringFormat=' x {0} '}"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="3" >
-                                    <Label Style="{StaticResource MicroLabel}"
-                                       TextColor="White" Text="{Binding Repetitions}"/>
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="4" >
+                                    <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text="&#x2794; " />
                                 </VerticalStackLayout>
+                                <HorizontalStackLayout Grid.Column="5" >
+                                    <CollectionView VerticalOptions="Center" ItemsLayout="HorizontalList"  ItemsSource="{Binding Repetitions}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate >
+                                                <Label VerticalOptions="Center" Style="{StaticResource MediumLabel}"
+                                                 TextColor="White" Text="{Binding ., StringFormat='{0} -'}"/>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </HorizontalStackLayout>
+                                
                             </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
-     
-        <Button
-            Margin="50"
-            IsEnabled="{Binding IsNotBusy}"
-            BackgroundColor="{StaticResource Accent}"
-            Command="{Binding GetExercisesCommand}"
-            Text="Get Workouts" />
+
+       
     </StackLayout>
 </ContentPage>

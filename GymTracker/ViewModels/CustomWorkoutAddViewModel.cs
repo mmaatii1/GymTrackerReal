@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using GymTracker.Services;
 using System;
 using System.Collections.Generic;
@@ -29,60 +30,92 @@ namespace GymTracker.ViewModels
         Exercise exercise;
 
         [ObservableProperty]
-        SpecificExercise specificExercise;
+        SpecificExercise specificExerciseInEdit;
 
         [ObservableProperty]
         List<string> searchResults;
+
+
+        [ObservableProperty]
+        List<SpecificExercise> doneExercises;
+
 
         [ObservableProperty]
         List<Exercise> selectedExercises;
 
         [ObservableProperty]
-        List<SpecificExercise> doneExercises;
+        bool isSearchResultVisible = false;
+        string EnteredExerciseInput { get; set; } = "";
 
-        [ObservableProperty]
-        Exercise editedExercise;
-
-        [ObservableProperty]
-        IList<Exercise> exercisesToPickFrom;
-
-      
-
-        public void SelectedExercise(int index)
+        public void PerformSearch(string query)
         {
+            if (string.IsNullOrEmpty(query))
+            {
+                SearchResults = null;
+                IsSearchResultVisible = false;
+                return;
+            }
+            SearchResults = ExerciseCollection.Where(c => c.Name.ToLower()
+            .Contains(query.ToLower()))
+                .Select(c => c.Name)
+                .ToList();
+            IsSearchResultVisible = true;
+        }
+
+
+        
+        [RelayCommand]
+        void OnPicked(SelectedItemChangedEventArgs e)
+        {
+            var selectedItem = e.SelectedItem as string;
+            var selectedItemAsObject = ExerciseCollection.Where(c => c.Name.Equals(selectedItem)).FirstOrDefault();
+            SpecificExerciseInEdit ??= new SpecificExercise();
+            SpecificExerciseInEdit.Exercise = selectedItemAsObject;
             SelectedExercises ??= new List<Exercise>();
-            var selectedItem = ExercisesToPickFrom[index];
-            EditedExercise = selectedItem;
-            SelectedExercises.Add(selectedItem);
-            selectedItem = null;
-            SearchResults = null;
+            SelectedExercises.Add(selectedItemAsObject);
+            e = null;
+            IsSearchResultVisible = false;
         }
 
         [RelayCommand]
         void ExerciseConfirm()
         {
             DoneExercises ??= new List<SpecificExercise>();
-            DoneExercises.Add(SpecificExercise);
-            SpecificExercise = null;
-            SelectedExercises= null;
+            if(SpecificExerciseInEdit is null)
+            {
+                return;
+            }
+            DoneExercises.Add(SpecificExerciseInEdit);
+            SpecificExerciseInEdit = null;
+            SelectedExercises = null;
         }
 
-        public void OnWeightEntry(string e)
+        public void OnExerciseInfoEntry(string e)
         {
-            string text = e.ToString();
-            SpecificExercise ??= new SpecificExercise();
-            SpecificExercise.Exercise = EditedExercise;
-            SpecificExercise.Weight = int.Parse(text);
+            if (e.Equals(EnteredExerciseInput))
+            {
+                return;
+            }
+            var textFromInput = e;
+            var splitted = textFromInput.Split("-");
+            var weight = splitted[0];
+            var splittedReps = splitted.TakeLast(splitted.Count() - 1);
+            var numberOfSets = splittedReps.Count();
+            SpecificExerciseInEdit.Weight = double.Parse(weight);
+            SpecificExerciseInEdit.Sets = (byte)numberOfSets;
+            var splittedRepsAsDoubles = splittedReps.Select(c=> {
+                double parsed;
+                if(double.TryParse(c, out parsed))
+                {
+                    return parsed;
+                }
+                return 0;
+                
+            }).ToArray();
+            SpecificExerciseInEdit.Repetitions = splittedRepsAsDoubles;
+            EnteredExerciseInput = e;
         }
-        public void OnSetsEntry(string e)
-        {
-            SpecificExercise.Sets = byte.Parse(e);
-        }
-        public void OnRepEntry(string e)
-        {
-            SpecificExercise.Repetitions= byte.Parse(e);
-        }
-
+       
         
 
         [RelayCommand]
@@ -110,8 +143,6 @@ namespace GymTracker.ViewModels
                 foreach (var exercise in exercises)
                 {
                     ExerciseCollection.Add(exercise);
-                    ExercisesToPickFrom ??= new List<Exercise>();
-                    ExercisesToPickFrom.Add(exercise);
                 }
 
             }
