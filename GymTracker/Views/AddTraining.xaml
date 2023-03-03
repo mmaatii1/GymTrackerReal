@@ -64,11 +64,11 @@
                                 </VerticalStackLayout>
                                 <VerticalStackLayout VerticalOptions="Center" Grid.Column="1" >
                                     <Label Style="{StaticResource LargeLabel}"
-                                       TextColor="{StaticResource Accent}" Text="  &#x2794;   "/>
+                                       TextColor="{StaticResource Accent}" Text=" &#x2794; "/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout VerticalOptions="Center" Grid.Column="2">
                                     <Frame Padding="0" IsClippedToBounds="True" CornerRadius="10">
-                                    <Entry x:Name="entry"
+                                        <Entry x:Name="entry"
                                     Placeholder="50-5-5-5"
                                            VerticalOptions="Center"
                                     Completed="OnEntryCompleted"
@@ -94,7 +94,7 @@
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding ExerciseConfirmCommand}"
                                         Text="Confirm" />
-            
+
             <CollectionView BackgroundColor="#0C090D"
                  ItemsSource="{Binding DoneExercises}">
                 <CollectionView.ItemTemplate>
@@ -126,14 +126,16 @@
                                         </CollectionView.ItemTemplate>
                                     </CollectionView>
                                 </HorizontalStackLayout>
-                                
                             </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
-
-       
+        <Button
+                                        Margin="0"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        Command="{Binding PostWorkoutCommand}"
+                                        Text="Confirm" />
     </StackLayout>
 </ContentPage>

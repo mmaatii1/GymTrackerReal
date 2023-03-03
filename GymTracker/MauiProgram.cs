@@ -3,6 +3,7 @@ using CommunityToolkit.Maui;
 using GymTracker.Services;
 using GymTracker.Models;
 using GymTracker.Views;
+using System.Reflection;
 
 namespace GymTracker;
 
@@ -19,6 +20,7 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
+        builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
         builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
         builder.Services.AddSingleton<IGeolocation>(Geolocation.Default);
         builder.Services.AddSingleton<IHttpsClientHandlerService, HttpsClientHandlerService>();

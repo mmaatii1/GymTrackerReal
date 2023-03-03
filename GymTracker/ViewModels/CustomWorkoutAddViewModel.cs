@@ -1,5 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AutoMapper;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GymTracker.Dtos;
 using GymTracker.Services;
 using System;
 using System.Collections.Generic;
@@ -12,16 +14,21 @@ namespace GymTracker.ViewModels
     public partial class CustomWorkoutAddViewModel : BaseViewModel
     {
         readonly IWrapperService<Exercise> _exerciesWrapper;
-        readonly IWrapperService<SpecificExercise> _specificExerciseWrapper;
+        readonly IWrapperService<SpecificExerciseUpdateCreateDto> _specificExerciseWrapper;
+        readonly IWrapperService<CustomWorkoutCreateUpdateDto> _customWorkoutWrapper;
+        readonly IMapper _mapper;
         IConnectivity _connectivity;
 
         public ObservableCollection<Exercise> ExerciseCollection = new();
         public ObservableCollection<SpecificExercise> SpecificExerciseCollection = new();
-        public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IWrapperService<SpecificExercise> specificExerciseWrapper, IConnectivity connectivity)
+        public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IMapper mapper,
+            IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper, IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper)
         {
             _exerciesWrapper = wrapper;
             _specificExerciseWrapper = specificExerciseWrapper;
             _connectivity = connectivity;
+            _customWorkoutWrapper = customWorkoutWrapper;
+            _mapper = mapper;
         }
         [ObservableProperty]
         bool isRefreshing;
@@ -90,36 +97,6 @@ namespace GymTracker.ViewModels
             SelectedExercises = null;
         }
 
-        public void OnExerciseInfoEntry(string e)
-        {
-            if (e.Equals(EnteredExerciseInput))
-            {
-                return;
-            }
-            var textFromInput = e;
-            var splitted = textFromInput.Split("-");
-            var weight = splitted[0];
-            var splittedReps = splitted.TakeLast(splitted.Count() - 1);
-            var numberOfSets = splittedReps.Count();
-            SpecificExerciseInEdit.Weight = double.Parse(weight);
-            SpecificExerciseInEdit.Sets = (byte)numberOfSets;
-            var splittedRepsAsDoubles = splittedReps.Select(c=> {
-                double parsed;
-                if(double.TryParse(c, out parsed))
-                {
-                    return parsed;
-                }
-                return 0;
-                
-            }).ToArray();
-            var splittedRepsAsStrings = splittedReps.Select(c => c + " - ");
-            SpecificExerciseInEdit.RepetitionsAsStrings = splittedRepsAsStrings.ToArray();
-            SpecificExerciseInEdit.Repetitions = splittedRepsAsDoubles;
-            EnteredExerciseInput = e;
-        }
-       
-        
-
         [RelayCommand]
         async Task GetExercises()
         {
@@ -158,6 +135,52 @@ namespace GymTracker.ViewModels
                 IsBusy = false;
                 IsRefreshing = false;
             }
-        }        
+        }
+        public void OnExerciseInfoEntry(string e)
+        {
+            if (e.Equals(EnteredExerciseInput))
+            {
+                return;
+            }
+            var textFromInput = e;
+            var splitted = textFromInput.Split("-");
+            var weight = splitted[0];
+            var splittedReps = splitted.TakeLast(splitted.Count() - 1);
+            var numberOfSets = splittedReps.Count();
+            SpecificExerciseInEdit.Weight = double.Parse(weight);
+            SpecificExerciseInEdit.Sets = (byte)numberOfSets;
+            var splittedRepsAsDoubles = splittedReps.Select(c => {
+                double parsed;
+                if (double.TryParse(c, out parsed))
+                {
+                    return parsed;
+                }
+                return 0;
+
+            }).ToArray();
+            var splittedRepsAsStrings = splittedReps.Select(c => c + " - ").ToList();
+            if (splittedRepsAsStrings.Any())
+            {
+                splittedRepsAsStrings[splittedRepsAsStrings.Count - 1] = splittedRepsAsStrings.Last().Replace("-", "");
+                SpecificExerciseInEdit.RepetitionsAsStrings = splittedRepsAsStrings.ToArray();
+            }
+            SpecificExerciseInEdit.RepetitionsAsStrings = splittedRepsAsStrings.ToArray();
+            SpecificExerciseInEdit.Repetitions = splittedRepsAsDoubles;
+            EnteredExerciseInput = e;
+        }
+
+        [RelayCommand]
+        async Task PostWorkout()
+        {
+            var results = new List<int>();
+            foreach (var specEx in DoneExercises)
+            {
+                var specExCreate = new SpecificExerciseUpdateCreateDto() { ExerciseId = specEx.Exercise.Id, Repetitions = specEx.Repetitions, Sets = specEx.Sets, Weight = specEx.Weight };
+                var res = await _specificExerciseWrapper.SaveAsync(specExCreate, true);
+                results.Add(res.Id);
+            }
+            var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki"  };
+            await _customWorkoutWrapper.SaveAsync(workout, true);
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace GymTracker.Services
     public interface IRestService<TEntity> where TEntity : class
     {
         Task<List<TEntity>> GetAllAsync();
-        Task SaveAsync(TEntity item, bool isNewItem);
+        Task<TEntity> SaveAsync(TEntity item, bool isNewItem);
 
         Task DeleteAsync(string id);
 

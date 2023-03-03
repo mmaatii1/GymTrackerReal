@@ -6,7 +6,7 @@ namespace GymTracker.Services
         TEentity: class
     {
         Task<List<TEentity>> GetAllAsync();
-        Task SaveAsync(TEentity item, bool isNewItem);
+        Task<TEentity> SaveAsync(TEentity item, bool isNewItem);
         Task DeleteAsync(TEentity item);
 
         Task<TEentity> GetByIdAsync(int id);

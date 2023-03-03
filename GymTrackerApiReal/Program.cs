@@ -60,7 +60,7 @@ app.UseAuthorization();
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
 
-app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
+app.MapGet($"/api/{nameof(CustomWorkout)}", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
 {
     var workouts = repo.GetAsQueryable()
                        .Include(c => c.CustomWorkoutSpecificExercises)
@@ -71,7 +71,7 @@ app.MapGet("/api/customWorkout", async (HttpContext httpContext, IGenericReposit
 })
 .WithName("GetWorkouts");
 
-app.MapPost("/api/customWorkout", async (CustomWorkoutCreateUpdateDto workout, IGenericRepository<SpecificExercise> specExRepo, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
+app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto workout, IGenericRepository<SpecificExercise> specExRepo, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {
     if (workout is null)
     {
@@ -83,7 +83,7 @@ app.MapPost("/api/customWorkout", async (CustomWorkoutCreateUpdateDto workout, I
 
     toAdd.CustomWorkoutSpecificExercises = specificExercises;
     var added = await repo.AddAsync(toAdd);
-    return Results.Created($"/todoitems/{added.Id}", added);
+    return Results.Created($"/todoitems/{added.Id}", workout);
 })
 .WithName("PostWorkout");
 
@@ -110,7 +110,7 @@ app.MapPost($"/api/{nameof(SpecificExercise)}", async (IGenericRepository<Specif
     toAdd.Exercise = exercise;
 
     var added = await repo.AddAsync(toAdd);
-    return Results.Created($"/{nameof(SpecificExercise)}/{added.Id}", added);
+    return Results.Created($"/{nameof(SpecificExercise)}/{added.Id}", specificExercise);
 });
 
 

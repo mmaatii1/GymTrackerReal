@@ -1,11 +1,12 @@
-﻿using System.Text;
+﻿using GymTracker.Dtos;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace GymTracker.Services
 {
     public class RestService<TEntity> : IRestService<TEntity> where TEntity : class
     {
         HttpClient _client;
-        JsonSerializerOptions _serializerOptions;
         IHttpsClientHandlerService _httpsClientHandlerService;
 
         public List<TEntity> Items { get; private set; }
@@ -22,11 +23,7 @@ namespace GymTracker.Services
 #else
             _client = new HttpClient();
 #endif
-            _serializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
+          
         }
 
         public async Task<List<TEntity>> GetAllAsync()
@@ -40,7 +37,7 @@ namespace GymTracker.Services
                 if (response.IsSuccessStatusCode)
                 {
                     string content = await response.Content.ReadAsStringAsync();
-                    Items = JsonSerializer.Deserialize<List<TEntity>>(content, _serializerOptions);
+                    Items = JsonConvert.DeserializeObject<List<TEntity>>(content);
                 }
             }
             catch (Exception ex)
@@ -51,28 +48,44 @@ namespace GymTracker.Services
             return Items;
         }
 
-        public async Task SaveAsync(TEntity item, bool isNewItem = false)
+        public async Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false)
         {
-            Uri uri = new Uri(string.Format(Constants.RestUrl, string.Empty));
+            Uri uri = new Uri(string.Format(Constants.RestUrl + typeof(TEntity).Name, string.Empty));
+
+            if (typeof(TEntity).Equals(typeof(SpecificExerciseUpdateCreateDto)))
+            {
+                uri = new Uri(string.Format(Constants.RestUrl + "SpecificExercise", string.Empty));
+            }
+
+            if (typeof(TEntity).Equals(typeof(CustomWorkoutCreateUpdateDto)))
+            {
+                uri = new Uri(string.Format(Constants.RestUrl + "CustomWorkout", string.Empty));
+            }
 
             try
             {
-                string json = JsonSerializer.Serialize<TEntity>(item, _serializerOptions);
+                string json = JsonConvert.SerializeObject(item);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = null;
                 if (isNewItem)
+                {
                     response = await _client.PostAsync(uri, content);
+                    var read = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<TEntity>(read);
+                }
                 else
+                {
                     response = await _client.PutAsync(uri, content);
-
-                if (response.IsSuccessStatusCode)
-                    Debug.WriteLine(@"\tTodoItem successfully saved.");
+                    var read = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<TEntity>(read);
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(@"\tERROR {0}", ex.Message);
             }
+            return null;
         }
 
         public async Task DeleteAsync(string id)
