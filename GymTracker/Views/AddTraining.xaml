@@ -64,7 +64,7 @@
                                 </VerticalStackLayout>
                                 <VerticalStackLayout VerticalOptions="Center" Grid.Column="1" >
                                     <Label Style="{StaticResource LargeLabel}"
-                                       TextColor="{StaticResource Accent}" Text=" &#x2794; "/>
+                                       TextColor="{StaticResource Accent}" Text=" &#x2794;   "/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout VerticalOptions="Center" Grid.Column="2">
                                     <Frame Padding="0" IsClippedToBounds="True" CornerRadius="10">

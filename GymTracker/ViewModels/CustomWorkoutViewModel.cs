@@ -23,6 +23,13 @@ namespace GymTracker.ViewModels
         {
             if (workout == null)
                 return;
+            var asString =  workout.CustomWorkoutSpecificExercises.Select(c => c.Repetitions.ToString());
+            foreach (var ex in workout.CustomWorkoutSpecificExercises)
+            {
+                ex.RepetitionsAsStrings = ex.Repetitions.Select(c => c.ToString() + "-").ToArray();
+                string v = ex.RepetitionsAsStrings.Last().Replace("-", "");
+                ex.RepetitionsAsStrings[^1] = v;
+            }
             var navigationParameter = new Dictionary<string, object>
             {
                 { "CustomWorkout", workout }

@@ -22,23 +22,30 @@
                                 </HorizontalStackLayout>
                                 <Grid Grid.Row="1"  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
                                     <VerticalStackLayout  Grid.Column="0">
-                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Exercise.Name}" />
+                                        <Label TextColor="White" Style="{StaticResource MediumLabel}" Text="{Binding Exercise.Name}" />
                                     </VerticalStackLayout >
                                     <VerticalStackLayout  Grid.Column="1">
-                                        <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text=" &#x2794; " />
+                                        <Label TextColor="{StaticResource Accent}" Style="{StaticResource MediumLabel}" Text=" &#x2794; " />
                                     </VerticalStackLayout >
                                     <VerticalStackLayout  Grid.Column="2">
-                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Weight, StringFormat='{0}kg '}" />
+                                        <Label TextColor="White" Style="{StaticResource MediumLabel}" Text="{Binding Weight, StringFormat='{0}kg '}" />
                                     </VerticalStackLayout>
                                     <VerticalStackLayout  Grid.Column="3">
-                                        <Label TextColor="{StaticResource Accent}" Style="{StaticResource LargeLabel}" Text=" &#x2794; " />
+                                        <Label TextColor="{StaticResource Accent}" Style="{StaticResource MediumLabel}" Text=" &#x2794; " />
                                     </VerticalStackLayout >
                                     <VerticalStackLayout  Grid.Column="4">
-                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Sets, StringFormat='{0}x'}" />
+                                        <Label TextColor="White" Style="{StaticResource MediumLabel}" Text="{Binding Sets, StringFormat='{0}x'}" />
                                     </VerticalStackLayout>
-                                    <VerticalStackLayout  Grid.Column="5">
-                                        <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Repetitions}" />
-                                    </VerticalStackLayout>
+                                    <HorizontalStackLayout Grid.Column="5" >
+                                        <CollectionView VerticalOptions="Center" ItemsLayout="HorizontalList"  ItemsSource="{Binding RepetitionsAsStrings}">
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate >
+                                                    <Label VerticalOptions="Center" Style="{StaticResource MediumLabel}"
+                                                 TextColor="White" Text="{Binding .}"/>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+                                    </HorizontalStackLayout>
                                 </Grid>
                         </Grid>
                         </Frame>
