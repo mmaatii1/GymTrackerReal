@@ -61,13 +61,14 @@ app.UseAuthorization();
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
 
-app.MapGet($"/api/{nameof(CustomWorkout)}", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
+app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {
-    var workouts = repo.GetAsQueryable()
+    var workouts = await repo.GetAsQueryable()
                        .Include(c => c.CustomWorkoutSpecificExercises)
                        .ThenInclude(e => e.Exercise)
                        .ThenInclude(ex => ex.Muscle)
-                       .ToList();
+                       .ToListAsync();
+
     return Results.Ok(mapper.Map<CustomWorkoutReadDto>(workouts));
 })
 .WithName("GetWorkouts");
@@ -88,24 +89,25 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
 })
 .WithName("PostWorkout");
 
-app.MapGet($"/api/{nameof(WorkoutPlan)}", async (HttpContext httpContext, IGenericRepository<WorkoutPlan> repo, IMapper mapper) =>
+app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan> repo, IMapper mapper) =>
 {
-    var workoutsPlans = repo.GetAsQueryable()
+    var workoutsPlans = await repo.GetAsQueryable()
                        .Include(c => c.Exercises)
-                       .ThenInclude(a=>a.Muscle)
-                       .ToList();
+                       .ThenInclude(a => a.Muscle)
+                       .ToListAsync();
+
     return Results.Ok(mapper.Map<List<WorkoutPlanReadDto>>(workoutsPlans));
 })
 .WithName("GetWorkoutsPlan");
 
 app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateUpdateDto plan, 
-    IGenericRepository<WorkoutPlan> planRepo, IGenericRepository<CustomWorkout> workoutRepo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
+    IGenericRepository<WorkoutPlan> planRepo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
 {
     if (plan is null)
     {
         return Results.BadRequest();
     }
-    var specificExercises = exerciseRepo.GetAsQueryable().Where(c=>plan.ExercisesIds.Contains(c.Id)).ToList();
+    var specificExercises = await exerciseRepo.GetAsQueryable().Where(c=>plan.ExercisesIds.Contains(c.Id)).ToListAsync();
     var toAdd = mapper.Map<WorkoutPlan>(plan);
 
 
@@ -161,7 +163,7 @@ app.MapPost($"/api/{nameof(Exercise)}", async (IGenericRepository<Exercise> repo
     toAdd.Muscle = muscle;
     toAdd.Name = exercise.Name;
     var added = await repo.AddAsync(toAdd);
-    return Results.Created($"/{nameof(Exercise)}/{added.Id}", added);
+    return Results.Created($"/{nameof(Exercise)}/{added.Id}", exercise);
 });
 
 app.MapGet($"/api/{nameof(Muscle)}", async (IGenericRepository<Muscle> repo, IMapper mapper) =>
@@ -177,12 +179,8 @@ app.MapPost($"/api/{nameof(Muscle)}", async (IGenericRepository<Muscle> repo, IM
         return Results.BadRequest();
     }
     var added = await repo.AddAsync(mapper.Map<Muscle>(muscle));
-    return Results.Created($"/{nameof(Muscle)}/{added.Id}", added);
+    return Results.Created($"/{nameof(Muscle)}/{added.Id}", muscle);
 });
 
 app.Run();
 
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
