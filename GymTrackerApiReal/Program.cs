@@ -4,6 +4,7 @@ using GymTrackerApiReal.Dtos.CustomWorkout;
 using GymTrackerApiReal.Dtos.Exercise;
 using GymTrackerApiReal.Dtos.Muscle;
 using GymTrackerApiReal.Dtos.SpecificExercise;
+using GymTrackerApiReal.Dtos.WorkoutPlan;
 using GymTrackerApiReal.Interfaces;
 using GymTrackerApiReal.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -60,14 +61,14 @@ app.UseAuthorization();
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
 
-app.MapGet($"/api/{nameof(CustomWorkout)}", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
+app.MapGet($"/api/{nameof(CustomWorkout)}", async (HttpContext httpContext, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {
     var workouts = repo.GetAsQueryable()
                        .Include(c => c.CustomWorkoutSpecificExercises)
                        .ThenInclude(e => e.Exercise)
                        .ThenInclude(ex => ex.Muscle)
                        .ToList();
-    return Results.Ok(workouts);
+    return Results.Ok(mapper.Map<CustomWorkoutReadDto>(workouts));
 })
 .WithName("GetWorkouts");
 
@@ -83,11 +84,36 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
 
     toAdd.CustomWorkoutSpecificExercises = specificExercises;
     var added = await repo.AddAsync(toAdd);
-    return Results.Created($"/todoitems/{added.Id}", workout);
+    return Results.Created($"/{nameof(CustomWorkout)}/{added.Id}", workout);
 })
 .WithName("PostWorkout");
 
+app.MapGet($"/api/{nameof(WorkoutPlan)}", async (HttpContext httpContext, IGenericRepository<WorkoutPlan> repo, IMapper mapper) =>
+{
+    var workoutsPlans = repo.GetAsQueryable()
+                       .Include(c => c.Exercises)
+                       .ThenInclude(a=>a.Muscle)
+                       .ToList();
+    return Results.Ok(mapper.Map<List<WorkoutPlanReadDto>>(workoutsPlans));
+})
+.WithName("GetWorkoutsPlan");
 
+app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateUpdateDto plan, 
+    IGenericRepository<WorkoutPlan> planRepo, IGenericRepository<CustomWorkout> workoutRepo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
+{
+    if (plan is null)
+    {
+        return Results.BadRequest();
+    }
+    var specificExercises = exerciseRepo.GetAsQueryable().Where(c=>plan.ExercisesIds.Contains(c.Id)).ToList();
+    var toAdd = mapper.Map<WorkoutPlan>(plan);
+
+
+    toAdd.Exercises = specificExercises;
+    var added = await planRepo.AddAsync(toAdd);
+    return Results.Created($"/{nameof(WorkoutPlan)}/{added.Id}", plan);
+})
+.WithName("PostWorkoutPlan");
 
 app.MapGet($"/api/{nameof(SpecificExercise)}", async (IGenericRepository<SpecificExercise> repo, IMapper mapper) =>
 {

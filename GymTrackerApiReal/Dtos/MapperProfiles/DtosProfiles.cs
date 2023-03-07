@@ -3,6 +3,7 @@ using GymTrackerApiReal.Dtos.CustomWorkout;
 using GymTrackerApiReal.Dtos.Exercise;
 using GymTrackerApiReal.Dtos.Muscle;
 using GymTrackerApiReal.Dtos.SpecificExercise;
+using GymTrackerApiReal.Dtos.WorkoutPlan;
 using GymTrackerApiReal.Models;
 
 namespace GymTrackerApiReal.Dtos.MapperProfiles
@@ -23,6 +24,9 @@ namespace GymTrackerApiReal.Dtos.MapperProfiles
 
             CreateMap<Models.SpecificExercise, SpecificExerciseUpdateCreateDto>().ReverseMap();
             CreateMap<Models.SpecificExercise, SpecificExerciseReadDto>().ReverseMap();
+
+            CreateMap<Models.WorkoutPlan, WorkoutPlanCreateUpdateDto>().ReverseMap();
+            CreateMap<Models.WorkoutPlan, WorkoutPlanReadDto>().ReverseMap();
         }
     }
 }

@@ -15,6 +15,7 @@ namespace GymTrackerApiReal.Data
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Muscle> Muscles { get; set; }
         public DbSet<SpecificExercise> SpecificExercises { get; set; }
+        public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
