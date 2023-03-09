@@ -100,7 +100,7 @@ app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan>
 })
 .WithName("GetWorkoutsPlan");
 
-app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateUpdateDto plan, 
+app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateDto plan, 
     IGenericRepository<WorkoutPlan> planRepo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
 {
     if (plan is null)

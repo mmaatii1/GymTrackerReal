@@ -7,7 +7,7 @@
              x:DataType="viewmodel:MainPageViewModel"
              Title="GymTracker">
     
-    <Grid BackgroundColor="{StaticResource DarkBackground}" RowDefinitions="*,*">
+    <Grid BackgroundColor="{StaticResource DarkBackground}" RowDefinitions="*,*,*">
         <ContentView Grid.Row="0">
         <Button
             Margin="50"
@@ -23,6 +23,14 @@
             BackgroundColor="{StaticResource Accent}"
             Command="{Binding AddNewTraningCommand}"
             Text="Add training" />
+        </ContentView>
+        <ContentView Grid.Row="2">
+            <Button
+            Margin="50"
+            IsEnabled="{Binding IsNotBusy}"
+            BackgroundColor="{StaticResource Accent}"
+            Command="{Binding AddNewWorkoutPlanCommand}"
+            Text="Add WorkoutPlan" />
         </ContentView>
     </Grid>
 

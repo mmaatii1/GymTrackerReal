@@ -20,5 +20,10 @@ namespace GymTracker.ViewModels
         {
             await Shell.Current.GoToAsync(nameof(AddTraining));
         }
+        [RelayCommand]
+        async Task AddNewWorkoutPlan()
+        {
+            await Shell.Current.GoToAsync(nameof(AddWorkoutPlan));
+        }
     }
 }

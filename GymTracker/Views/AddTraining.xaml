@@ -8,9 +8,6 @@
              xmlns:converters="clr-namespace:GymTracker.Converters"
                 x:DataType="viewmodel:CustomWorkoutAddViewModel"
              Title="AddTraining">
-    <ContentPage.Resources>
-        <converters:RemoveLastCharacterConverter x:Key="RemoveLastCharacterConverter" />
-    </ContentPage.Resources>
     <ContentPage.Behaviors>
         <toolkit:EventToCommandBehavior
         EventName="Appearing"

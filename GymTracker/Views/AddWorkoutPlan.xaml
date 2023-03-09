@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GymTracker.Views.AddWorkoutPlan"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:viewmodel="clr-namespace:GymTracker.ViewModels"
+             x:DataType="viewmodel:WorkoutPlanAddViewModel"
+             xmlns:model ="clr-namespace:GymTracker.Models"
+             Title="AddWorkoutPlan">
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior
+        EventName="Appearing"
+        Command="{Binding GetExercisesCommand}" />
+    </ContentPage.Behaviors>
+    <StackLayout BackgroundColor="#0C090D">
+        <SearchBar x:Name="searchBar"
+                   TextChanged="searchBar_TextChanged"
+                   BackgroundColor="#0C090D"
+                   TextColor="White"
+                   PlaceholderColor="White"
+                   Placeholder="Find exercise"
+                   CancelButtonColor="White"
+                   />
+        <ListView x:Name="searchResults"
+                  BackgroundColor="#0C090D"
+                  IsVisible="{Binding IsSearchResultVisible}"
+                  ItemsSource="{Binding SearchResults}"
+                  SeparatorColor="{StaticResource Accent}"
+                  >
+            <ListView.ItemTemplate VerticalOptions="Center">
+                <DataTemplate >
+                    <ViewCell>
+                        <Grid>
+                            <Frame VerticalOptions="Center" Padding="10"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}" >
+                                <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="White"></Label>
+                            </Frame>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+            <ListView.Behaviors>
+                <toolkit:EventToCommandBehavior
+                    x:TypeArguments="SelectedItemChangedEventArgs"
+                    EventName="ItemSelected"
+                    Command="{Binding PickedCommand}"
+                    />
+            </ListView.Behaviors>
+        </ListView>
+        <VerticalStackLayout>
+            <CollectionView HeightRequest="200"
+                    ItemsSource="{Binding SelectedExercises}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:Exercise">
+                        <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
+                            <Grid ColumnDefinitions="Auto,Auto,Auto" BackgroundColor="#0C090D">
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="0" >
+                                    <Label Style="{StaticResource MediumLabel}"
+                                       TextColor="White" Text="{Binding Name , StringFormat='{0}'}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+        <Button
+                                        Margin="0"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        Command="{Binding ConfirmPlanCommand}"
+                                        Text="Confirm" />
+    </StackLayout>
+</ContentPage>

@@ -1,6 +1,6 @@
 ﻿namespace GymTrackerApiReal.Dtos.WorkoutPlan
 {
-    public class WorkoutPlanCreateUpdateDto
+    public class WorkoutPlanUpdateDto
     {
         public int Id { get; set; }
         public IEnumerable<int> ExercisesIds { get; set; }

@@ -31,11 +31,13 @@ public static class MauiProgram
         builder.Services.AddTransient<DetailsPage>();
         builder.Services.AddTransient<ListOfTrainings>();
         builder.Services.AddTransient<AddTraining>();
+        builder.Services.AddTransient<AddWorkoutPlan>();
 
         builder.Services.AddTransient<CustomWorkoutDetailsViewModel>();
         builder.Services.AddTransient<MainPageViewModel>();
         builder.Services.AddTransient<CustomWorkoutViewModel>();
         builder.Services.AddTransient<CustomWorkoutAddViewModel>();
+        builder.Services.AddTransient<WorkoutPlanAddViewModel>();
 
 #if DEBUG
         builder.Logging.AddDebug();
