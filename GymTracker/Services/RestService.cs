@@ -62,6 +62,11 @@ namespace GymTracker.Services
                 uri = new Uri(string.Format(Constants.RestUrl + "CustomWorkout", string.Empty));
             }
 
+            if (typeof(TEntity).Equals(typeof(WorkoutPlanCreateDto)))
+            {
+                uri = new Uri(string.Format(Constants.RestUrl + "WorkoutPlan", string.Empty));
+            }
+
             try
             {
                 string json = JsonConvert.SerializeObject(item);

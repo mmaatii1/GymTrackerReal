@@ -63,6 +63,24 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
+        <VerticalStackLayout>
+            <Frame>
+                <Entry
+                    x:Name="entry"
+                   Placeholder="Training A"
+                   VerticalOptions="Center"
+                   Completed="OnEntryCompleted"
+                   TextChanged="entry_TextChanged"
+                    MaxLength="50"
+                   WidthRequest="150"
+                    TextColor="#0C090D"
+                     ReturnType="Done"
+                      IsSpellCheckEnabled="false"
+                     HeightRequest="40"
+                    BackgroundColor="{StaticResource Accent}"
+                    />
+            </Frame>
+        </VerticalStackLayout>
         <Button
                                         Margin="0"
                                         BackgroundColor="{StaticResource Accent}"

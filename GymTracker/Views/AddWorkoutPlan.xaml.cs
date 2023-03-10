@@ -15,4 +15,14 @@ public partial class AddWorkoutPlan : ContentPage
         var text = searchBar.Text;
         _viewModel.PerformSearch(text);
     }
+    private void entry_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        string newText = e.NewTextValue;
+        _viewModel.OnWorkoutPlanNameInfoEntry(newText);
+    }
+    void OnEntryCompleted(object sender, EventArgs e)
+    {
+        string text = ((Entry)sender).Text;
+        _viewModel.OnWorkoutPlanNameInfoEntry(text);
+    }
 }

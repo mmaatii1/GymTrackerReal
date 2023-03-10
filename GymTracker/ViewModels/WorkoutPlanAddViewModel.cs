@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+using GymTracker.Dtos;
 using GymTracker.Services;
 
 namespace GymTracker.ViewModels
@@ -7,10 +8,12 @@ namespace GymTracker.ViewModels
     {
         IConnectivity _connectivity;
         IWrapperService<Exercise> _exerciseWrapper;
-        public WorkoutPlanAddViewModel(IConnectivity connectivity, IWrapperService<Exercise> exerciseWrapper)
+        IWrapperService<WorkoutPlanCreateDto> _workoutPlanWrapper;
+        public WorkoutPlanAddViewModel(IConnectivity connectivity, IWrapperService<Exercise> exerciseWrapper, IWrapperService<WorkoutPlanCreateDto> workoutPlanWrapper)
         {
             _exerciseWrapper = exerciseWrapper;
             _connectivity = connectivity;
+            _workoutPlanWrapper = workoutPlanWrapper;
         }
 
         public ObservableCollection<Exercise> ExerciseCollection = new();
@@ -23,6 +26,9 @@ namespace GymTracker.ViewModels
 
         [ObservableProperty]
         List<Exercise> selectedExercises;
+
+        [ObservableProperty]
+        WorkoutPlanCreateDto newWorkoutPlan = new WorkoutPlanCreateDto();
 
         public void PerformSearch(string query)
         {
@@ -51,9 +57,41 @@ namespace GymTracker.ViewModels
             IsSearchResultVisible = false;
         }
 
-        [RelayCommand]
-        void ConfirmPlan()
+        public void OnWorkoutPlanNameInfoEntry(string text)
         {
+            NewWorkoutPlan.Name = text;
+        }
+
+        [RelayCommand]
+        async Task ConfirmPlan()
+        {
+            NewWorkoutPlan.ExercisesIds = SelectedExercises.Select(c => c.Id);
+
+            if (IsBusy) return;
+
+            try
+            {
+                if (_connectivity.NetworkAccess != NetworkAccess.Internet)
+                {
+                    await Shell.Current.DisplayAlert("No connectivity!",
+                        $"Please check internet and try again.", "OK");
+                    return;
+                }
+
+                IsBusy = true;
+
+                await _workoutPlanWrapper.SaveAsync(NewWorkoutPlan, true);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unable to get exercises: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error!", ex.Message, "OK");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
 
         }
 
