@@ -17,6 +17,7 @@ namespace GymTracker.ViewModels
         }
 
         public ObservableCollection<Exercise> ExerciseCollection = new();
+        public ObservableCollection<Exercise> SelectedExercises { get; set; } = new();
 
         [ObservableProperty]
         bool isSearchResultVisible = false;
@@ -24,8 +25,6 @@ namespace GymTracker.ViewModels
         [ObservableProperty]
         List<string> searchResults;
 
-        [ObservableProperty]
-        List<Exercise> selectedExercises;
 
         [ObservableProperty]
         WorkoutPlanCreateDto newWorkoutPlan = new WorkoutPlanCreateDto();
@@ -51,7 +50,6 @@ namespace GymTracker.ViewModels
         {
             var selectedItem = e.SelectedItem as string;
             var selectedItemAsObject = ExerciseCollection.Where(c => c.Name.Equals(selectedItem)).FirstOrDefault();
-            SelectedExercises ??= new List<Exercise>();
             SelectedExercises.Add(selectedItemAsObject);
             e = null;
             IsSearchResultVisible = false;

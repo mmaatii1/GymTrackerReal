@@ -66,9 +66,9 @@
                                 <VerticalStackLayout VerticalOptions="Center" Grid.Column="2">
                                     <Frame Padding="0" IsClippedToBounds="True" CornerRadius="10">
                                         <Entry x:Name="entry"
-                                    Placeholder="50-5-5-5"
+                                            Placeholder="50-5-5-5"
                                            VerticalOptions="Center"
-                                    Completed="OnEntryCompleted"
+                                           Completed="OnEntryCompleted"
                                            TextChanged="entry_TextChanged"
                                            MaxLength="50"
                                            WidthRequest="150"

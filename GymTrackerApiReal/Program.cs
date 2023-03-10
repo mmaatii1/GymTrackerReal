@@ -69,7 +69,7 @@ app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWork
                        .ThenInclude(ex => ex.Muscle)
                        .ToListAsync();
 
-    return Results.Ok(mapper.Map<CustomWorkoutReadDto>(workouts));
+    return Results.Ok(mapper.Map<List<CustomWorkoutReadDto>>(workouts));
 })
 .WithName("GetWorkouts");
 
