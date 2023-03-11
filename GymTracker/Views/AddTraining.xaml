@@ -61,7 +61,7 @@
         </ListView>
 
         <VerticalStackLayout>
-            <CollectionView HeightRequest="150"
+            <CollectionView MinimumHeightRequest="250"
                     ItemsSource="{Binding SelectedExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Exercise">

@@ -23,12 +23,16 @@ public partial class AddTraining : ContentPage
 
     private void entry_TextChanged(object sender, TextChangedEventArgs e)
     {
+        var entry = (Entry)sender;
+        var exercise = (Exercise)entry.BindingContext; 
         string newText = e.NewTextValue;
-        _viewModel.OnExerciseInfoEntry(newText);
+        _viewModel.OnExerciseInfoEntry(newText,exercise);
     }
     void OnEntryCompleted(object sender, EventArgs e)
     {
         string text = ((Entry)sender).Text;
-        _viewModel.OnExerciseInfoEntry(text);
+        var entry = (Entry)sender;
+        var exercise = (Exercise)entry.BindingContext;
+        _viewModel.OnExerciseInfoEntry(text,exercise);
     }
 }

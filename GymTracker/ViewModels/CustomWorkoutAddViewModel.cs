@@ -16,7 +16,8 @@ namespace GymTracker.ViewModels
         public ObservableCollection<Exercise> ExerciseCollection { get; set; } = new();
         public ObservableCollection<SpecificExercise> SpecificExerciseCollection = new();
         public ObservableCollection<WorkoutPlan> WorkoutPlansCollection { get; set; } = new();
-
+        public ObservableCollection<Exercise> SelectedExercises { get; set; }
+        public ObservableCollection<SpecificExercise> DoneExercises { get; set; }
         public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IMapper mapper,
             IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper,
             IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, IWrapperService<WorkoutPlan> workoutPlanWrapper)
@@ -41,12 +42,6 @@ namespace GymTracker.ViewModels
         [ObservableProperty]
         List<string> searchResults;
 
-
-        [ObservableProperty]
-        List<SpecificExercise> doneExercises;
-
-        [ObservableProperty]
-        List<Exercise> selectedExercises;
 
         [ObservableProperty]
         bool isSearchResultVisible = false;
@@ -77,6 +72,7 @@ namespace GymTracker.ViewModels
                     SelectedExercises.Add(ex);
                 }
             }
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(SelectedExercises)));
             prevWorkoutPlan = value;
         }
 
@@ -100,10 +96,9 @@ namespace GymTracker.ViewModels
         {
             var selectedItem = e.SelectedItem as string;
             var selectedItemAsObject = ExerciseCollection.Where(c => c.Name.Equals(selectedItem)).FirstOrDefault();
-            SpecificExerciseInEdit ??= new SpecificExercise();
-            SpecificExerciseInEdit.Exercise = selectedItemAsObject;
-            SelectedExercises ??= new List<Exercise>();
+            SelectedExercises ??= new();
             SelectedExercises.Add(selectedItemAsObject);
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(SelectedExercises)));
             e = null;
             IsSearchResultVisible = false;
         }
@@ -111,14 +106,16 @@ namespace GymTracker.ViewModels
         [RelayCommand]
         void ExerciseConfirm()
         {
-            DoneExercises ??= new List<SpecificExercise>();
+            DoneExercises ??= new();
             if(SpecificExerciseInEdit is null)
             {
                 return;
             }
             DoneExercises.Add(SpecificExerciseInEdit);
+            SelectedExercises.Remove(SpecificExerciseInEdit.Exercise);
             SpecificExerciseInEdit = null;
-            SelectedExercises = null;
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(DoneExercises)));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(SelectedExercises)));
         }
 
         [RelayCommand]
@@ -169,12 +166,14 @@ namespace GymTracker.ViewModels
                 IsRefreshing = false;
             }
         }
-        public void OnExerciseInfoEntry(string e)
+        public void OnExerciseInfoEntry(string e, Exercise exercise)
         {
             if (e.Equals(EnteredExerciseInput))
             {
                 return;
             }
+            SpecificExerciseInEdit ??= new();
+            SpecificExerciseInEdit.Exercise = exercise;
             var textFromInput = e;
             var splitted = textFromInput.Split("-");
             var weight = splitted[0];
