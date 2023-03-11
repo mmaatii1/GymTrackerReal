@@ -14,6 +14,7 @@
         Command="{Binding GetExercisesCommand}" />
     </ContentPage.Behaviors>
     <StackLayout BackgroundColor="#0C090D">
+        <Grid ColumnDefinitions="*,*">
         <SearchBar x:Name="searchBar"
                    TextChanged="searchBar_TextChanged"
                    BackgroundColor="#0C090D"
@@ -21,12 +22,23 @@
                    PlaceholderColor="White"
                    Placeholder="Find exercise"
                    CancelButtonColor="White"
+                   Margin="5"
+                   Grid.Column="0"
                    />
+            <Picker Title="Select a workout"
+                     BackgroundColor="#0C090D"
+                    TextColor="White"
+                    ItemsSource="{Binding WorkoutPlansCollection}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding WorkoutPlan}"
+                    Grid.Column="1"/>
+        </Grid>
         <ListView x:Name="searchResults"
                   BackgroundColor="#0C090D"
                   IsVisible="{Binding IsSearchResultVisible}"
                   ItemsSource="{Binding SearchResults}"
                   SeparatorColor="{StaticResource Accent}"
+                  Margin="5"
                   >
             <ListView.ItemTemplate VerticalOptions="Center">
                 <DataTemplate >
@@ -49,7 +61,7 @@
         </ListView>
 
         <VerticalStackLayout>
-            <CollectionView 
+            <CollectionView HeightRequest="150"
                     ItemsSource="{Binding SelectedExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Exercise">
@@ -87,12 +99,12 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
             <Button
-                                        Margin="0"
+                                        Margin="5"
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding ExerciseConfirmCommand}"
                                         Text="Confirm" />
 
-            <CollectionView BackgroundColor="#0C090D"
+            <CollectionView HeightRequest="250" BackgroundColor="#0C090D"
                  ItemsSource="{Binding DoneExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:SpecificExercise">
@@ -130,7 +142,7 @@
             </CollectionView>
         </VerticalStackLayout>
         <Button
-                                        Margin="0"
+                                        Margin="5"
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding PostWorkoutCommand}"
                                         Text="Confirm" />

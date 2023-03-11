@@ -9,20 +9,26 @@ namespace GymTracker.ViewModels
         readonly IWrapperService<Exercise> _exerciesWrapper;
         readonly IWrapperService<SpecificExerciseUpdateCreateDto> _specificExerciseWrapper;
         readonly IWrapperService<CustomWorkoutCreateUpdateDto> _customWorkoutWrapper;
+        readonly IWrapperService<WorkoutPlan> _workoutPlanWrapper;
         readonly IMapper _mapper;
         IConnectivity _connectivity;
 
-        public ObservableCollection<Exercise> ExerciseCollection = new();
+        public ObservableCollection<Exercise> ExerciseCollection { get; set; } = new();
         public ObservableCollection<SpecificExercise> SpecificExerciseCollection = new();
+        public ObservableCollection<WorkoutPlan> WorkoutPlansCollection { get; set; } = new();
+
         public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IMapper mapper,
-            IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper, IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper)
+            IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper,
+            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, IWrapperService<WorkoutPlan> workoutPlanWrapper)
         {
             _exerciesWrapper = wrapper;
             _specificExerciseWrapper = specificExerciseWrapper;
             _connectivity = connectivity;
             _customWorkoutWrapper = customWorkoutWrapper;
             _mapper = mapper;
+            _workoutPlanWrapper = workoutPlanWrapper;
         }
+
         [ObservableProperty]
         bool isRefreshing;
 
@@ -39,13 +45,40 @@ namespace GymTracker.ViewModels
         [ObservableProperty]
         List<SpecificExercise> doneExercises;
 
-
         [ObservableProperty]
         List<Exercise> selectedExercises;
 
         [ObservableProperty]
         bool isSearchResultVisible = false;
+
+        [ObservableProperty]
+        WorkoutPlan workoutPlan;
+
+        WorkoutPlan prevWorkoutPlan { get; set; }
         string EnteredExerciseInput { get; set; } = "";
+
+        partial void OnWorkoutPlanChanged(WorkoutPlan value)
+        {
+            var exercises = value.Exercises.ToList();
+
+            if(prevWorkoutPlan?.Id is not null)
+            {
+                SelectedExercises.Clear();
+                foreach (var ex in exercises)
+                {
+                    SelectedExercises.Add(ex);
+                }
+            }
+            else
+            {
+                SelectedExercises ??= new();
+                foreach (var ex in exercises)
+                {
+                    SelectedExercises.Add(ex);
+                }
+            }
+            prevWorkoutPlan = value;
+        }
 
         public void PerformSearch(string query)
         {
@@ -62,8 +95,6 @@ namespace GymTracker.ViewModels
             IsSearchResultVisible = true;
         }
 
-
-        
         [RelayCommand]
         void OnPicked(SelectedItemChangedEventArgs e)
         {
@@ -106,6 +137,12 @@ namespace GymTracker.ViewModels
 
                 IsBusy = true;
                 var exercises = await _exerciesWrapper.GetAllAsync();
+                var workoutPlans = await _workoutPlanWrapper.GetAllAsync();
+
+                if (WorkoutPlansCollection.Count != 0)
+                {
+                    WorkoutPlansCollection.Clear();
+                }
 
                 if (ExerciseCollection.Count != 0)
                 {
@@ -116,7 +153,10 @@ namespace GymTracker.ViewModels
                 {
                     ExerciseCollection.Add(exercise);
                 }
-
+                foreach (var plan in workoutPlans)
+                {
+                    WorkoutPlansCollection.Add(plan);
+                }
             }
             catch (Exception ex)
             {
