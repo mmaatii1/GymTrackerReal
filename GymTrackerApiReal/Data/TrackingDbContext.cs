@@ -26,6 +26,13 @@ namespace GymTrackerApiReal.Data
                         v => string.Join(',', v),
                         v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(double.Parse).ToArray());
             });
+
+
+            modelBuilder.Entity<CustomWorkout>()
+    .HasOne(c => c.WorkoutPlan)
+    .WithMany(w => w.DoneWorkouts)
+    .OnDelete(DeleteBehavior.SetNull);
+
         }
     }
 }

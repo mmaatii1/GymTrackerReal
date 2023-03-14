@@ -67,6 +67,7 @@ app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWork
                        .Include(c => c.CustomWorkoutSpecificExercises)
                        .ThenInclude(e => e.Exercise)
                        .ThenInclude(ex => ex.Muscle)
+                       .Include(cw=>cw.WorkoutPlan)
                        .ToListAsync();
 
     return Results.Ok(mapper.Map<List<CustomWorkoutReadDto>>(workouts));
@@ -82,7 +83,6 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
     var specificExercises = await specExRepo.GetAsQueryable().Where(c => workout.SpecificExercisesIds.Contains(c.Id)).Include(c => c.Exercise).Include(c => c.Exercise.Muscle).ToListAsync();
     var toAdd = mapper.Map<CustomWorkout>(workout);
 
-
     toAdd.CustomWorkoutSpecificExercises = specificExercises;
     var added = await repo.AddAsync(toAdd);
     return Results.Created($"/{nameof(CustomWorkout)}/{added.Id}", workout);
@@ -92,11 +92,12 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
 app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan> repo, IMapper mapper) =>
 {
     var workoutsPlans = await repo.GetAsQueryable()
+                       .Include(c=>c.DoneWorkouts)
                        .Include(c => c.Exercises)
                        .ThenInclude(a => a.Muscle)
                        .ToListAsync();
-
-    return Results.Ok(mapper.Map<List<WorkoutPlanReadDto>>(workoutsPlans));
+    var mapped = mapper.Map<List<WorkoutPlanReadDto>>(workoutsPlans);
+    return Results.Ok(mapped);
 })
 .WithName("GetWorkoutsPlan");
 
@@ -107,15 +108,44 @@ app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateDto plan,
     {
         return Results.BadRequest();
     }
-    var specificExercises = await exerciseRepo.GetAsQueryable().Where(c=>plan.ExercisesIds.Contains(c.Id)).ToListAsync();
+    var exercises = await exerciseRepo.GetAsQueryable().Where(c=>plan.ExercisesIds.Contains(c.Id)).ToListAsync();
     var toAdd = mapper.Map<WorkoutPlan>(plan);
 
 
-    toAdd.Exercises = specificExercises;
+    toAdd.Exercises = exercises;
     var added = await planRepo.AddAsync(toAdd);
     return Results.Created($"/{nameof(WorkoutPlan)}/{added.Id}", plan);
 })
 .WithName("PostWorkoutPlan");
+
+app.MapPut($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanUpdateDto plan,
+    IGenericRepository<WorkoutPlan> planRepo, IGenericRepository<Exercise> exerciseRepo, IGenericRepository<CustomWorkout> customWorkoutRepo, IMapper mapper) =>
+{
+    if (plan is null)
+    {
+        return Results.BadRequest();
+    }
+
+    var planToUpdate = await planRepo.GetAsQueryable().Include(c=>c.Exercises).Include(c=>c.DoneWorkouts).FirstOrDefaultAsync(c => c.Id == plan.Id);
+
+    if (!planToUpdate.Exercises.Select(c => c.Id).OrderBy(i=>i)
+    .SequenceEqual(plan.ExercisesIds.OrderBy(i=>i)))
+    {
+        planToUpdate.Exercises = await exerciseRepo.GetAsQueryable().Where(c => plan.ExercisesIds.Contains(c.Id)).ToListAsync();
+    }
+    if(plan.DoneWorkoutsIds is not null)
+    {
+        planToUpdate.DoneWorkouts = await customWorkoutRepo.GetAsQueryable().Where(c => plan.DoneWorkoutsIds.Contains(c.Id)).ToListAsync();
+    }
+    if (!string.IsNullOrWhiteSpace(plan.Name))
+    {
+        planToUpdate.Name = plan.Name;
+    }
+
+    var added = await planRepo.UpdateAsync(planToUpdate);
+    return Results.Accepted($"/{nameof(WorkoutPlan)}/{added.Id}", plan);
+})
+.WithName("UpdateWorkoutPlan");
 
 app.MapGet($"/api/{nameof(SpecificExercise)}", async (IGenericRepository<SpecificExercise> repo, IMapper mapper) =>
 {
