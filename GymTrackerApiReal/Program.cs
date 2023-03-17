@@ -85,6 +85,7 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
 
     toAdd.CustomWorkoutSpecificExercises = specificExercises;
     var added = await repo.AddAsync(toAdd);
+    workout.Id = added.Id; 
     return Results.Created($"/{nameof(CustomWorkout)}/{added.Id}", workout);
 })
 .WithName("PostWorkout");
@@ -168,6 +169,7 @@ app.MapPost($"/api/{nameof(SpecificExercise)}", async (IGenericRepository<Specif
     toAdd.Exercise = exercise;
 
     var added = await repo.AddAsync(toAdd);
+    specificExercise.Id = added.Id;
     return Results.Created($"/{nameof(SpecificExercise)}/{added.Id}", specificExercise);
 });
 

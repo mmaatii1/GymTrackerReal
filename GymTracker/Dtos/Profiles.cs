@@ -12,6 +12,7 @@ namespace GymTracker.Dtos
         public Profiles()
         {
             CreateMap<SpecificExercise,SpecificExerciseUpdateCreateDto>().ReverseMap();
+            CreateMap<WorkoutPlan,WorkoutPlanUpdateDto>().ReverseMap();
         }
     }
 }

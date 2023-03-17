@@ -10,6 +10,7 @@ namespace GymTracker.ViewModels
         readonly IWrapperService<SpecificExerciseUpdateCreateDto> _specificExerciseWrapper;
         readonly IWrapperService<CustomWorkoutCreateUpdateDto> _customWorkoutWrapper;
         readonly IWrapperService<WorkoutPlan> _workoutPlanWrapper;
+        readonly IWrapperService<WorkoutPlanUpdateDto> _workoutPlanUpdateDtoWrapper;
         readonly IMapper _mapper;
         IConnectivity _connectivity;
 
@@ -20,7 +21,7 @@ namespace GymTracker.ViewModels
         public ObservableCollection<SpecificExercise> DoneExercises { get; set; }
         public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IMapper mapper,
             IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper,
-            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, IWrapperService<WorkoutPlan> workoutPlanWrapper)
+            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, IWrapperService<WorkoutPlan> workoutPlanWrapper, IWrapperService<WorkoutPlanUpdateDto> workoutPlanUpdateDtoWrapper)
         {
             _exerciesWrapper = wrapper;
             _specificExerciseWrapper = specificExerciseWrapper;
@@ -28,6 +29,7 @@ namespace GymTracker.ViewModels
             _customWorkoutWrapper = customWorkoutWrapper;
             _mapper = mapper;
             _workoutPlanWrapper = workoutPlanWrapper;
+            _workoutPlanUpdateDtoWrapper = workoutPlanUpdateDtoWrapper;
         }
 
         [ObservableProperty]
@@ -47,12 +49,12 @@ namespace GymTracker.ViewModels
         bool isSearchResultVisible = false;
 
         [ObservableProperty]
-        WorkoutPlan workoutPlan;
+        WorkoutPlan chosedWorkoutPlan;
 
         WorkoutPlan prevWorkoutPlan { get; set; }
         string EnteredExerciseInput { get; set; } = "";
 
-        partial void OnWorkoutPlanChanged(WorkoutPlan value)
+        partial void OnChosedWorkoutPlanChanged(WorkoutPlan value)
         {
             var exercises = value.Exercises.ToList();
 
@@ -212,7 +214,15 @@ namespace GymTracker.ViewModels
                 results.Add(res.Id);
             }
             var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki"  };
-            await _customWorkoutWrapper.SaveAsync(workout, true);
+            var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
+            if(ChosedWorkoutPlan is not null)
+            {
+                var workoutPlanToUpdateWith = new WorkoutPlanUpdateDto();
+                var mapped = _mapper.Map<WorkoutPlanUpdateDto>(ChosedWorkoutPlan);
+                mapped.ExercisesIds = ChosedWorkoutPlan.Exercises.Select(x => x.Id);
+                mapped.DoneWorkoutsIds.Add(res2.Id);
+                await _workoutPlanUpdateDtoWrapper.SaveAsync(mapped, false);
+            }
         }
     }
 }

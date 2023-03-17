@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace GymTracker.Dtos
 {
+    [ApiEndpoint("CustomWorkout")]
     public class CustomWorkoutCreateUpdateDto : BaseEntity
     {
         public List<int> SpecificExercisesIds { get; set; }

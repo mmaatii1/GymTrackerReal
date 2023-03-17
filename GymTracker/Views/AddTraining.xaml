@@ -30,7 +30,7 @@
                     TextColor="White"
                     ItemsSource="{Binding WorkoutPlansCollection}"
                     ItemDisplayBinding="{Binding Name}"
-                    SelectedItem="{Binding WorkoutPlan}"
+                    SelectedItem="{Binding ChosedWorkoutPlan}"
                     Grid.Column="1"/>
         </Grid>
         <ListView x:Name="searchResults"
@@ -61,36 +61,37 @@
         </ListView>
 
         <VerticalStackLayout>
-            <CollectionView MinimumHeightRequest="250"
+            <CollectionView 
                     ItemsSource="{Binding SelectedExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:Exercise">
-                        <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
-                            <Grid ColumnDefinitions="Auto,Auto,Auto" BackgroundColor="#0C090D">
-                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="0" >
+                        <Frame Padding="10" Margin="5"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
+                            <Grid ColumnDefinitions="*,*,auto">
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="0">
                                     <Label Style="{StaticResource MediumLabel}"
-                                       TextColor="White" Text="{Binding Name , StringFormat='{0}'}"/>
+                                    TextColor="White" Text="{Binding Name , StringFormat='{0}'}"/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="1" >
+                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="1">
                                     <Label Style="{StaticResource LargeLabel}"
-                                       TextColor="{StaticResource Accent}" Text=" &#x2794;   "/>
+                                    TextColor="{StaticResource Accent}" Text=" &#x2794;   "/>
                                 </VerticalStackLayout>
-                                <VerticalStackLayout VerticalOptions="Center" Grid.Column="2">
-                                    <Frame Padding="0" IsClippedToBounds="True" CornerRadius="10">
+                                <VerticalStackLayout  Grid.Column="2">
+                                    <Frame Padding="0"  IsClippedToBounds="True" CornerRadius="10">
                                         <Entry x:Name="entry"
-                                            Placeholder="50-5-5-5"
-                                           VerticalOptions="Center"
-                                           Completed="OnEntryCompleted"
-                                           TextChanged="entry_TextChanged"
-                                           MaxLength="50"
-                                           WidthRequest="150"
-                                           Keyboard="Telephone"
-                                           TextColor="#0C090D"
-                                           ReturnType="Done"
-                                           IsSpellCheckEnabled="false"
-                                           HeightRequest="40"
-                                           BackgroundColor="{StaticResource Accent}"
-                                           />
+                                        Placeholder="50-5-5-5"
+                                            VerticalOptions="Center"
+                                            Completed="OnEntryCompleted"
+                                       TextChanged="entry_TextChanged"
+                                       MaxLength="50"
+                                       WidthRequest="150"
+                                       Keyboard="Telephone"
+                                       TextColor="#0C090D"
+                                       ReturnType="Done"
+                                       IsSpellCheckEnabled="false"
+                                       HeightRequest="40"
+                                       HorizontalOptions="End"
+                                       BackgroundColor="{StaticResource Accent}"
+                                        />
                                     </Frame>
                                 </VerticalStackLayout>
                             </Grid>
@@ -108,7 +109,7 @@
                  ItemsSource="{Binding DoneExercises}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:SpecificExercise">
-                        <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
+                        <Frame Padding="10" Margin="5"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
                             <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" BackgroundColor="#0C090D">
                                 <VerticalStackLayout VerticalOptions="Center"  Grid.Column="0" >
                                     <Label  Style="{StaticResource MediumLabel}"

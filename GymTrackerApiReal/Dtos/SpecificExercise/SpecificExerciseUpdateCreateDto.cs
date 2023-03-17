@@ -4,6 +4,7 @@ namespace GymTrackerApiReal.Dtos.SpecificExercise
 {
     public class SpecificExerciseUpdateCreateDto
     {
+        public int Id { get; set; }
         public int ExerciseId { get; set; }
         public double[] Repetitions { get; set; }
         public byte Sets { get; set; }

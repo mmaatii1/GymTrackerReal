@@ -1,6 +1,7 @@
 ﻿
 namespace GymTracker.Dtos
 {
+    [ApiEndpoint("SpecificExercise")]
     public class SpecificExerciseUpdateCreateDto : BaseEntity
     {
         public int ExerciseId { get; set; }

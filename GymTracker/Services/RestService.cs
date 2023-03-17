@@ -1,5 +1,6 @@
 ﻿using GymTracker.Dtos;
 using Newtonsoft.Json;
+using System.Reflection;
 using System.Text;
 
 namespace GymTracker.Services
@@ -50,25 +51,13 @@ namespace GymTracker.Services
 
         public async Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false)
         {
-            Uri uri = new Uri(string.Format(Constants.RestUrl + typeof(TEntity).Name, string.Empty));
-
-            if (typeof(TEntity).Equals(typeof(SpecificExerciseUpdateCreateDto)))
-            {
-                uri = new Uri(string.Format(Constants.RestUrl + "SpecificExercise", string.Empty));
-            }
-
-            if (typeof(TEntity).Equals(typeof(CustomWorkoutCreateUpdateDto)))
-            {
-                uri = new Uri(string.Format(Constants.RestUrl + "CustomWorkout", string.Empty));
-            }
-
-            if (typeof(TEntity).Equals(typeof(WorkoutPlanCreateDto)))
-            {
-                uri = new Uri(string.Format(Constants.RestUrl + "WorkoutPlan", string.Empty));
-            }
+            
 
             try
             {
+                string apiEndpoint = typeof(TEntity).GetCustomAttribute<ApiEndpointAttribute>()?.EndpointName ?? typeof(TEntity).Name;
+                Uri uri = new Uri(string.Format(Constants.RestUrl + apiEndpoint, string.Empty));
+
                 string json = JsonConvert.SerializeObject(item);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 

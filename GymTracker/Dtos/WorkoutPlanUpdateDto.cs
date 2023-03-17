@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GymTracker.Models
+namespace GymTracker.Dtos
 {
-    public class WorkoutPlan : BaseEntity
+    [ApiEndpoint("WorkoutPlan")]
+    public class WorkoutPlanUpdateDto : BaseEntity
     {
-        public IEnumerable<Exercise> Exercises { get; set; }
+        public IEnumerable<int> ExercisesIds { get; set; }
         public IList<int>? DoneWorkoutsIds { get; set; }
         public string Name { get; set; }
     }
