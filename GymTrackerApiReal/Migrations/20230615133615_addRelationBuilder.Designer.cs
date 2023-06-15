@@ -4,6 +4,7 @@ using GymTrackerApiReal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GymTrackerApiReal.Migrations
 {
     [DbContext(typeof(TrackingDbContext))]
-    partial class TrackingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230615133615_addRelationBuilder")]
+    partial class addRelationBuilder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +115,7 @@ namespace GymTrackerApiReal.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CustomWorkoutId")
+                    b.Property<int>("CustomWorkoutId")
                         .HasColumnType("int");
 
                     b.Property<int>("ExerciseId")
@@ -195,7 +198,8 @@ namespace GymTrackerApiReal.Migrations
                     b.HasOne("GymTrackerApiReal.Models.CustomWorkout", "CustomWorkout")
                         .WithMany("CustomWorkoutSpecificExercises")
                         .HasForeignKey("CustomWorkoutId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("GymTrackerApiReal.Models.Exercise", "Exercise")
                         .WithMany()

@@ -1,5 +1,6 @@
 ﻿using GymTrackerApiReal.Exceptions;
 using GymTrackerApiReal.Interfaces;
+using GymTrackerApiReal.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -32,6 +33,7 @@ namespace GymTrackerApiReal.Data
                 var entityName = getEntityType.Name.ToString().Split('.').Last();
                 throw new EntityNotFoundException(entityName);
             }
+           
             _dbSet.Remove(entityToDelete);
             await _context.SaveChangesAsync();
             return entityToDelete;

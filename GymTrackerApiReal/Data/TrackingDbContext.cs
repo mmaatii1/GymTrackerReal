@@ -8,7 +8,6 @@ namespace GymTrackerApiReal.Data
     {
         public TrackingDbContext(DbContextOptions<TrackingDbContext> options) : base(options)
         {
-
         }
 
         public DbSet<CustomWorkout> CustomWorkouts { get; set; }
@@ -33,6 +32,18 @@ namespace GymTrackerApiReal.Data
     .WithMany(w => w.DoneWorkouts)
     .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<CustomWorkout>()
+        .HasMany(cw => cw.CustomWorkoutSpecificExercises)
+        .WithOne(se => se.CustomWorkout)
+        .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SpecificExercise>()
+      .HasOne(se => se.CustomWorkout)
+      .WithMany(cw => cw.CustomWorkoutSpecificExercises)
+      .HasForeignKey(se => se.CustomWorkoutId)
+      .IsRequired(false);
         }
+
+      
     }
 }

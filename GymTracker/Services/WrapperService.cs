@@ -24,7 +24,7 @@ namespace GymTracker.Services
 
         public Task DeleteAsync(TEntity item)
         {
-            return _restService.DeleteAsync(item.Id.ToString());
+            return _restService.DeleteAsync(item.Id);
         }
 
         public Task<TEntity> GetByIdAsync(int id)

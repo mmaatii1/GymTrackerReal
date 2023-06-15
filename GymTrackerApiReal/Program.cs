@@ -6,15 +6,19 @@ using GymTrackerApiReal.Dtos.Muscle;
 using GymTrackerApiReal.Dtos.SpecificExercise;
 using GymTrackerApiReal.Dtos.WorkoutPlan;
 using GymTrackerApiReal.Interfaces;
+using GymTrackerApiReal.Migrations;
 using GymTrackerApiReal.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using System.Diagnostics.Metrics;
 using System.Net.WebSockets;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -29,7 +33,7 @@ builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.Configure<JsonOptions>(options =>
+builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
 {
     options.SerializerOptions
                .ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -42,16 +46,13 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 #region setupDb
 builder.Services.AddDbContext<TrackingDbContext>
-    (o => o.UseSqlServer(connectionString: "Server=localhost\\SQLEXPRESS01;Database=master;TrustServerCertificate=True;Integrated Security=true; Initial Catalog = TrackerReal"));
+//
+//"Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    (o => o.UseSqlServer(connectionString: "Server = localhost\\SQLEXPRESS01; Database = master; TrustServerCertificate = True; Integrated Security = true; Initial Catalog = TrackerReal"));
 #endregion
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
@@ -60,6 +61,13 @@ app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
+app.MapDelete("/api/CustomWorkout/{id}", async (int id,IGenericRepository < CustomWorkout> repo, IMapper mapper) =>
+{
+    var workouts = await repo.DeleteAsync(id);
+
+    return Results.Ok();
+})
+.WithName("DeleteWorkout");
 
 app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {

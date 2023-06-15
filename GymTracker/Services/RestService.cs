@@ -51,8 +51,6 @@ namespace GymTracker.Services
 
         public async Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false)
         {
-            
-
             try
             {
                 string apiEndpoint = typeof(TEntity).GetCustomAttribute<ApiEndpointAttribute>()?.EndpointName ?? typeof(TEntity).Name;
@@ -82,15 +80,16 @@ namespace GymTracker.Services
             return null;
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
-            Uri uri = new Uri(string.Format(Constants.RestUrl, id));
-
             try
             {
+                string apiEndpoint =  typeof(TEntity).Name;
+                Uri uri = new Uri(string.Format(Constants.RestUrl + apiEndpoint +"/" + id, string.Empty));
+
                 HttpResponseMessage response = await _client.DeleteAsync(uri);
                 if (response.IsSuccessStatusCode)
-                    Debug.WriteLine(@"\tTodoItem successfully deleted.");
+                    Debug.WriteLine(@"successfully deleted.");
             }
             catch (Exception ex)
             {

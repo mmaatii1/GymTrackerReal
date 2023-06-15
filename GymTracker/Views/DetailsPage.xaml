@@ -20,7 +20,7 @@
                                        TextColor="White" Text="{Binding Exercise.Muscle.MainMasculeGroup
                                     , StringFormat='Main Trained: {0}'}" />
                                 </HorizontalStackLayout>
-                                <Grid Grid.Row="1"  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                                <Grid Grid.Row="1"  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                                     <VerticalStackLayout  Grid.Column="0">
                                         <Label TextColor="White" Style="{StaticResource MediumLabel}" Text="{Binding Exercise.Name}" />
                                     </VerticalStackLayout >
@@ -46,12 +46,23 @@
                                             </CollectionView.ItemTemplate>
                                         </CollectionView>
                                     </HorizontalStackLayout>
+                
                                 </Grid>
                         </Grid>
                         </Frame>
                     </DataTemplate>
-                    </CollectionView.ItemTemplate>
+
+                    
+                </CollectionView.ItemTemplate>
                 </CollectionView>
-            </VerticalStackLayout>
+            <Button
+            Grid.Row="1"
+            Grid.Column="0"
+            Margin="8"
+            Command="{Binding DeleteWorkoutCommand}"
+            BackgroundColor="{StaticResource Accent}"
+            IsEnabled="{Binding IsNotBusy}"
+            Text="Delete this workout" />
+        </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

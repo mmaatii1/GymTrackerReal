@@ -42,6 +42,7 @@
                                             VerticalOptions="Center">
                                             <Label TextColor="White" Style="{StaticResource LargeLabel}" Text="{Binding Name}"/>
                                             <Label TextColor="White"  Style="{StaticResource SmallLabel}" Text="{Binding DateOfWorkout}" />
+                                         
                                         </VerticalStackLayout>
                                         <VerticalStackLayout 
                                             VerticalOptions="CenterAndExpand"
