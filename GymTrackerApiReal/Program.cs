@@ -46,13 +46,11 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 #region setupDb
 builder.Services.AddDbContext<TrackingDbContext>
-// "Server = localhost\\SQLEXPRESS01; Database = master; TrustServerCertificate = True; Integrated Security = true; Initial Catalog = TrackerReal"
-//
-    (o => o.UseSqlServer(connectionString: builder.Configuration["ConnectionString:Azure"]));
+    (o => o.UseSqlServer(connectionString: "Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 #endregion
 var app = builder.Build();
 app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -98,7 +98,7 @@ namespace GymTracker.ViewModels
         {
             var selectedItem = e.SelectedItem as string;
             var selectedItemAsObject = ExerciseCollection.Where(c => c.Name.Equals(selectedItem)).FirstOrDefault();
-            SelectedExercises ??= new();
+            SelectedExercises = new();
             SelectedExercises.Add(selectedItemAsObject);
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(SelectedExercises)));
             e = null;
