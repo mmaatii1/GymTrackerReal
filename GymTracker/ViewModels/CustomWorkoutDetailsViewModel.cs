@@ -11,7 +11,8 @@ namespace GymTracker.ViewModels
         {
             _customWorkoutWrapper = wrapper;
         }
-
+        [ObservableProperty]
+        bool buttonVisible = true;
         [ObservableProperty]
         CustomWorkout customWorkout;
         [ObservableProperty]
@@ -32,6 +33,7 @@ namespace GymTracker.ViewModels
         void SetImage()
         {
             WorkoutPhoto = ByteArrayToImageSource();
+            ButtonVisible = false;
         }
         private ImageSource ByteArrayToImageSource()
         {

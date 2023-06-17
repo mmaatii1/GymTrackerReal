@@ -58,15 +58,16 @@
                 </CollectionView.ItemTemplate>
 
             </CollectionView>
-            <Image Source="{Binding WorkoutPhoto}"></Image>
-            <Button
-            Grid.Row="1"
-            Grid.Column="0"
+            <HorizontalStackLayout Grid.Row="1" >
+                <Image Margin="10" MaximumWidthRequest="150" MaximumHeightRequest="150" Source="{Binding WorkoutPhoto}"></Image>
+                <Button
             Margin="8"
             Command="{Binding SetImageCommand}"
             BackgroundColor="{StaticResource Accent}"
             IsEnabled="{Binding IsNotBusy}"
-            Text="Image" />
+                    IsVisible="{Binding ButtonVisible}"
+            Text="Show traning photo" />
+            </HorizontalStackLayout>
             <Button
             Grid.Row="1"
             Grid.Column="0"
