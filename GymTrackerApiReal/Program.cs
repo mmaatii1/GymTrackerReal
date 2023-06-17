@@ -1,8 +1,12 @@
 using AutoMapper;
+using Azure.Identity;
+using Azure.Storage;
+using Azure.Storage.Blobs;
 using GymTrackerApiReal.Data;
 using GymTrackerApiReal.Dtos.CustomWorkout;
 using GymTrackerApiReal.Dtos.Exercise;
 using GymTrackerApiReal.Dtos.Muscle;
+using GymTrackerApiReal.Dtos.Picture;
 using GymTrackerApiReal.Dtos.SpecificExercise;
 using GymTrackerApiReal.Dtos.WorkoutPlan;
 using GymTrackerApiReal.Interfaces;
@@ -18,7 +22,10 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using System.Collections;
+using System.ComponentModel;
 using System.Diagnostics.Metrics;
+using System.IO;
 using System.Net.WebSockets;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -46,7 +53,8 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 #region setupDb
 builder.Services.AddDbContext<TrackingDbContext>
-    (o => o.UseSqlServer(connectionString: "Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+    // "Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    (o => o.UseSqlServer(connectionString: "Server = localhost\\SQLEXPRESS01; Database = master; TrustServerCertificate = True; Integrated Security = true; Initial Catalog = TrackerReal"));
 #endregion
 var app = builder.Build();
 app.UseSwagger();
@@ -58,6 +66,34 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
+
+app.MapPost("api/WorkoutPhoto", async(WorkoutPhoto photo )=>{
+
+    BlobServiceClient blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=gymtrackerstorage;AccountKey=Ln2Ijx26rp8tFA3prjufPWBj5M1KyVkrHdVXCFx0J/+Bqo8FeXgeH157vKSfJOhiwDbce+2KRnob+AStWOjvEA==;EndpointSuffix=core.windows.net");
+
+    BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("trainingphotos");
+
+    BlobClient blobClient = containerClient.GetBlobClient(photo.Guid.ToString());
+
+    FileStream fileStream;
+    try
+    {
+    using (fileStream = new FileStream(photo.Guid.ToString(), FileMode.Create, FileAccess.ReadWrite))
+    {
+        fileStream.Write(photo.PhotoAsBytes, 0, photo.PhotoAsBytes.Length);
+        fileStream.Position= 0;
+        await blobClient.UploadAsync(fileStream, true);
+        fileStream.Dispose();
+        File.Delete(photo.Guid.ToString());
+    }
+    }
+    catch(Exception ex)
+    {
+        return await Task.FromResult(false);
+    }
+    return await Task.FromResult(true);
+
+}).WithName("WorkoutPhoto");
 
 app.MapDelete("/api/CustomWorkout/{id}", async (int id,IGenericRepository < CustomWorkout> repo, IMapper mapper) =>
 {

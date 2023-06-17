@@ -13,14 +13,14 @@ namespace GymTracker.ViewModels
         }
 
         [ObservableProperty]
-        CustomWorkout customWorkout;
+        CustomWorkout customWorkoutt;
 
         [RelayCommand]
         async Task DeleteWorkoutAsync()
         {
             try
             {
-               await _customWorkoutWrapper.DeleteAsync(CustomWorkout);
+               await _customWorkoutWrapper.DeleteAsync(CustomWorkoutt);
             }
             catch (Exception)
             {

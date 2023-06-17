@@ -5,12 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:viewmodel="clr-namespace:GymTracker.ViewModels"
     xmlns:model ="clr-namespace:GymTracker.Models"
-    Title="{Binding CustomWorkout.Name}"
+    Title="{Binding CustomWorkoutt.Name}"
     x:DataType="viewmodel:CustomWorkoutDetailsViewModel">
     <ScrollView>
         <VerticalStackLayout BackgroundColor="#0C090D" >
             <CollectionView
-                    ItemsSource="{Binding CustomWorkout.CustomWorkoutSpecificExercises}">
+                    ItemsSource="{Binding CustomWorkoutt.CustomWorkoutSpecificExercises}">
                 <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:SpecificExercise">
                         <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">

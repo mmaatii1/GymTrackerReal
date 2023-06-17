@@ -147,5 +147,10 @@
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding PostWorkoutCommand}"
                                         Text="Confirm" />
+        <Button
+                                        Margin="5"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        Command="{Binding TakePhotoCommand}"
+                                        Text="Take photo :D" />
     </StackLayout>
 </ContentPage>

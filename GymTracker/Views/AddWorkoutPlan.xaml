@@ -90,5 +90,6 @@
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding ConfirmPlanCommand}"
                                         Text="Confirm" />
+      
     </StackLayout>
 </ContentPage>

@@ -7,5 +7,6 @@
         public WorkoutPlan? WorkoutPlan { get; set; }
         public DateTime DateOfWorkout { get; set; }
         public string Name { get; set; }
+        public Guid? Guid { get; set; }
     }
 }

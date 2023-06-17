@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using CommunityToolkit.Mvvm.Input;
 using GymTracker.Dtos;
 using GymTracker.Services;
+using Microsoft.Maui.Storage;
+using System.IO;
 
 namespace GymTracker.ViewModels
 {
@@ -11,6 +14,7 @@ namespace GymTracker.ViewModels
         readonly IWrapperService<CustomWorkoutCreateUpdateDto> _customWorkoutWrapper;
         readonly IWrapperService<WorkoutPlan> _workoutPlanWrapper;
         readonly IWrapperService<WorkoutPlanUpdateDto> _workoutPlanUpdateDtoWrapper;
+        readonly IWrapperService<WorkoutPhoto> _photoWrapper;
         readonly IMapper _mapper;
         IConnectivity _connectivity;
 
@@ -21,7 +25,9 @@ namespace GymTracker.ViewModels
         public ObservableCollection<SpecificExercise> DoneExercises { get; set; }
         public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IMapper mapper,
             IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper,
-            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, IWrapperService<WorkoutPlan> workoutPlanWrapper, IWrapperService<WorkoutPlanUpdateDto> workoutPlanUpdateDtoWrapper)
+            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, 
+            IWrapperService<WorkoutPlan> workoutPlanWrapper, IWrapperService<WorkoutPlanUpdateDto> workoutPlanUpdateDtoWrapper,
+            IWrapperService<WorkoutPhoto> photoWrapper)
         {
             _exerciesWrapper = wrapper;
             _specificExerciseWrapper = specificExerciseWrapper;
@@ -30,6 +36,7 @@ namespace GymTracker.ViewModels
             _mapper = mapper;
             _workoutPlanWrapper = workoutPlanWrapper;
             _workoutPlanUpdateDtoWrapper = workoutPlanUpdateDtoWrapper;
+            _photoWrapper = photoWrapper;
         }
 
         [ObservableProperty]
@@ -53,6 +60,8 @@ namespace GymTracker.ViewModels
 
         WorkoutPlan prevWorkoutPlan { get; set; }
         string EnteredExerciseInput { get; set; } = "";
+
+        Guid Guid { get; set; }
 
         partial void OnChosedWorkoutPlanChanged(WorkoutPlan value)
         {
@@ -168,6 +177,41 @@ namespace GymTracker.ViewModels
                 IsRefreshing = false;
             }
         }
+        [RelayCommand]
+        public async void TakePhoto()
+        {
+            if (MediaPicker.Default.IsCaptureSupported)
+            {
+                FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
+
+                if (photo != null)
+                {
+                    // save the file into local storage
+                    string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+
+                    using Stream sourceStream = await photo.OpenReadAsync();
+                    using FileStream localFileStream = File.OpenWrite(localFilePath);
+
+                    await sourceStream.CopyToAsync(localFileStream);
+                    byte[] fileBytes = null;
+                    using (var stream = await photo.OpenReadAsync())
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await stream.CopyToAsync(memoryStream);
+                            fileBytes = memoryStream.ToArray();
+                        }
+                    }
+                    await SendToApi(fileBytes);
+                }
+            }
+        }
+        private async Task SendToApi(byte[] picture)
+        {
+           Guid = Guid.NewGuid();
+           await _photoWrapper.SaveAsync(new WorkoutPhoto() { PhotoAsBytes = picture, Guid = Guid}, true, true);
+        }
+       
         public void OnExerciseInfoEntry(string e, Exercise exercise)
         {
             if (e.Equals(EnteredExerciseInput))
@@ -213,7 +257,7 @@ namespace GymTracker.ViewModels
                 var res = await _specificExerciseWrapper.SaveAsync(specExCreate, true);
                 results.Add(res.Id);
             }
-            var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki"  };
+            var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki", Guid = Guid };
             var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
             if(ChosedWorkoutPlan is not null)
             {

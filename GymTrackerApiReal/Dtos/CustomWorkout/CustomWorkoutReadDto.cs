@@ -10,5 +10,6 @@ namespace GymTrackerApiReal.Dtos.CustomWorkout
         public int WorkoutPlanId { get; set; }
         public DateTime DateOfWorkout { get; set; }
         public string Name { get; set; }
+        public Guid? Guid { get; set; }
     }
 }

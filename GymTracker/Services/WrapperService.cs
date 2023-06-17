@@ -17,9 +17,9 @@ namespace GymTracker.Services
             return _restService.GetAllAsync();
         }
 
-        public Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false)
+        public Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false, bool isPhoto = false)
         {
-            return _restService.SaveAsync(item, isNewItem);
+            return _restService.SaveAsync(item, isNewItem, isPhoto);
         }
 
         public Task DeleteAsync(TEntity item)

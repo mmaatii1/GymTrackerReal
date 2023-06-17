@@ -1,5 +1,7 @@
 ﻿using GymTracker.Dtos;
 using Newtonsoft.Json;
+using System.Net.Http.Formatting;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 
@@ -49,7 +51,7 @@ namespace GymTracker.Services
             return Items;
         }
 
-        public async Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false)
+        public async Task<TEntity> SaveAsync(TEntity item, bool isNewItem = false, bool isPicture = false)
         {
             try
             {
@@ -60,6 +62,11 @@ namespace GymTracker.Services
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 HttpResponseMessage response = null;
+                if(isPicture)
+                {
+                    var result = await _client.PostAsync(uri, content);
+                    result.EnsureSuccessStatusCode();
+                }
                 if (isNewItem)
                 {
                     response = await _client.PostAsync(uri, content);
