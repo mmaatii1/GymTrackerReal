@@ -28,7 +28,11 @@ using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net.WebSockets;
 using System.Reflection;
+using System.Text.Json;
+using System.Text;
 using System.Text.Json.Serialization;
+using Azure.Storage.Blobs.Models;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,13 +71,31 @@ app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
+app.MapGet("api/WorkoutPhoto", async (string guid) =>
+{
+    var blobClient= GetBlobClient.GetClientBasedOnGuid(guid);
+    BlobDownloadInfo download = await blobClient.DownloadAsync();
+
+    try
+    {
+        var photo = new WorkoutPhoto();
+        using (MemoryStream ms = new MemoryStream())
+        {
+            await download.Content.CopyToAsync(ms);
+            photo.PhotoAsBytes = ms.ToArray();
+            photo.Guid = new Guid(guid);
+        }
+        return Results.Ok(photo);
+    }
+    catch (Exception)
+    {
+        return Results.NoContent();
+    }
+
+}).WithName("GetWorkoutPhoto");
 app.MapPost("api/WorkoutPhoto", async(WorkoutPhoto photo )=>{
 
-    BlobServiceClient blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=gymtrackerstorage;AccountKey=Ln2Ijx26rp8tFA3prjufPWBj5M1KyVkrHdVXCFx0J/+Bqo8FeXgeH157vKSfJOhiwDbce+2KRnob+AStWOjvEA==;EndpointSuffix=core.windows.net");
-
-    BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("trainingphotos");
-
-    BlobClient blobClient = containerClient.GetBlobClient(photo.Guid.ToString());
+    var blobClient = GetBlobClient.GetClientBasedOnGuid(photo.Guid.ToString());
 
     FileStream fileStream;
     try

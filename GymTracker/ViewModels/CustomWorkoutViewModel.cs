@@ -1,4 +1,5 @@
-﻿using GymTracker.Services;
+﻿using Android.Graphics;
+using GymTracker.Services;
 using GymTracker.Views;
 
 
@@ -36,6 +37,24 @@ namespace GymTracker.ViewModels
             };
             await Shell.Current.GoToAsync(nameof(DetailsPage), navigationParameter);
         }
+        public async void Set()
+        {
+            byte[] imageData = GetImageData(); // Your array of bytes containing the image data
+
+            if (imageData != null && imageData.Length > 0)
+            {
+                Bitmap bitmap = BitmapFactory.DecodeByteArray(imageData, 0, imageData.Length);
+
+                // Create a stream from the bitmap
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    bitmap.Compress(Bitmap.CompressFormat.Png, 0, stream);
+
+                    // Set the source of the Image control to the stream
+                    MyImage.Source = ImageSource.FromStream(() => new MemoryStream(stream.ToArray()));
+                }
+            }
+        }
 
         [RelayCommand]
         async Task GetWorkoutsAsync()
@@ -49,6 +68,7 @@ namespace GymTracker.ViewModels
                     await Shell.Current.DisplayAlert("No connectivity!",
                         $"Please check internet and try again.", "OK");
                     return;
+                    
                 }
 
                 IsBusy = true;
