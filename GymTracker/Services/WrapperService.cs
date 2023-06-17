@@ -27,9 +27,9 @@ namespace GymTracker.Services
             return _restService.DeleteAsync(item.Id);
         }
 
-        public Task<TEntity> GetByIdAsync(int id)
+        public Task<TEntity> GetByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            return _restService.GetByIdAsync(id);
         }
     }
 }

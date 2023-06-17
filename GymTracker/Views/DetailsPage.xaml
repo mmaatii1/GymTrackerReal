@@ -5,12 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:viewmodel="clr-namespace:GymTracker.ViewModels"
     xmlns:model ="clr-namespace:GymTracker.Models"
-    Title="{Binding CustomWorkoutt.Name}"
+    Title="{Binding CustomWorkout.Name}"
     x:DataType="viewmodel:CustomWorkoutDetailsViewModel">
     <ScrollView>
         <VerticalStackLayout BackgroundColor="#0C090D" >
             <CollectionView
-                    ItemsSource="{Binding CustomWorkoutt.CustomWorkoutSpecificExercises}">
+                    ItemsSource="{Binding CustomWorkout.CustomWorkoutSpecificExercises}">
                 <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="model:SpecificExercise">
                         <Frame Padding="15"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}">
@@ -48,13 +48,25 @@
                                     </HorizontalStackLayout>
                 
                                 </Grid>
+                               
                         </Grid>
                         </Frame>
+
                     </DataTemplate>
 
                     
                 </CollectionView.ItemTemplate>
-                </CollectionView>
+
+            </CollectionView>
+            <Image Source="{Binding WorkoutPhoto}"></Image>
+            <Button
+            Grid.Row="1"
+            Grid.Column="0"
+            Margin="8"
+            Command="{Binding SetImageCommand}"
+            BackgroundColor="{StaticResource Accent}"
+            IsEnabled="{Binding IsNotBusy}"
+            Text="Image" />
             <Button
             Grid.Row="1"
             Grid.Column="0"

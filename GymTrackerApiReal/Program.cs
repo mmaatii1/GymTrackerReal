@@ -71,7 +71,7 @@ app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
-app.MapGet("api/WorkoutPhoto", async (string guid) =>
+app.MapGet("api/WorkoutPhoto/{guid}", async (string guid) =>
 {
     var blobClient= GetBlobClient.GetClientBasedOnGuid(guid);
     BlobDownloadInfo download = await blobClient.DownloadAsync();

@@ -104,9 +104,24 @@ namespace GymTracker.Services
             }
         }
 
-        public Task<TEntity> GetByIdAsync(string id)
+        public async Task<TEntity> GetByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            Uri uri = new Uri(string.Format(Constants.RestUrl + typeof(TEntity).Name + "/" + id, string.Empty));
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync(uri);
+                if (response.IsSuccessStatusCode)
+                {
+                    string content = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<TEntity>(content);
+                }
+            }   
+            catch (Exception ex)
+            {
+                Debug.WriteLine(@"\tERROR {0}", ex.Message);
+            }
+
+            return null;
         }
     }
 }

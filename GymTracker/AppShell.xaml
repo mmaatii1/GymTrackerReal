@@ -28,7 +28,7 @@
 
     <ShellContent
         Shell.NavBarIsVisible="true"
-        Title="Monkeys"
+        Title="GymTracker"
         ContentTemplate="{DataTemplate view:MainPage}"
         Route="MainPage" />
 

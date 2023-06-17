@@ -1,4 +1,4 @@
-﻿using Android.Graphics;
+﻿using GymTracker.Dtos;
 using GymTracker.Services;
 using GymTracker.Views;
 
@@ -9,12 +9,14 @@ namespace GymTracker.ViewModels
     {
         public ObservableCollection<CustomWorkout> Workouts { get; } = new ObservableCollection<CustomWorkout>();
          readonly IWrapperService<CustomWorkout> _workoutService;
+         readonly IWrapperService<WorkoutPhoto> _photoService;
         IConnectivity _connectivity;
-        public CustomWorkoutViewModel(IWrapperService<CustomWorkout> workoutService, IConnectivity connectivity)
+        public CustomWorkoutViewModel(IWrapperService<CustomWorkout> workoutService, IConnectivity connectivity, IWrapperService<WorkoutPhoto> photoService)
         {
             Title = "WorkoutList";
             _workoutService = workoutService;
             _connectivity = connectivity;
+            _photoService = photoService;
         }
         [ObservableProperty]
         bool isRefreshing;
@@ -31,30 +33,18 @@ namespace GymTracker.ViewModels
                 string v = ex.RepetitionsAsStrings.Last().Replace("-", "");
                 ex.RepetitionsAsStrings[^1] = v;
             }
+            if (workout.Guid.HasValue)
+            {
+                var photo = await _photoService.GetByIdAsync(workout.Guid.ToString());
+                workout.PhotoAsBytes = photo.PhotoAsBytes;
+            }
             var navigationParameter = new Dictionary<string, object>
             {
                 { "CustomWorkout", workout }
             };
             await Shell.Current.GoToAsync(nameof(DetailsPage), navigationParameter);
         }
-        public async void Set()
-        {
-            byte[] imageData = GetImageData(); // Your array of bytes containing the image data
-
-            if (imageData != null && imageData.Length > 0)
-            {
-                Bitmap bitmap = BitmapFactory.DecodeByteArray(imageData, 0, imageData.Length);
-
-                // Create a stream from the bitmap
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    bitmap.Compress(Bitmap.CompressFormat.Png, 0, stream);
-
-                    // Set the source of the Image control to the stream
-                    MyImage.Source = ImageSource.FromStream(() => new MemoryStream(stream.ToArray()));
-                }
-            }
-        }
+      
 
         [RelayCommand]
         async Task GetWorkoutsAsync()

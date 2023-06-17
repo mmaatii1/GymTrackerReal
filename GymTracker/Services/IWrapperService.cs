@@ -9,7 +9,7 @@ namespace GymTracker.Services
         Task<TEentity> SaveAsync(TEentity item, bool isNewItem, bool isPhoto = false);
         Task DeleteAsync(TEentity item);
 
-        Task<TEentity> GetByIdAsync(int id);
+        Task<TEentity> GetByIdAsync(string id);
     }
 }
 
