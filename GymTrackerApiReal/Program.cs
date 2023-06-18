@@ -149,7 +149,9 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
 
     toAdd.CustomWorkoutSpecificExercises = specificExercises;
     var added = await repo.AddAsync(toAdd);
-    workout.Id = added.Id; 
+    workout.Id = added.Id;
+
+    CustomWorkoutAzureBus.SendToBus("customworkout", 1, workout);
     return Results.Created($"/{nameof(CustomWorkout)}/{added.Id}", workout);
 })
 .WithName("PostWorkout");

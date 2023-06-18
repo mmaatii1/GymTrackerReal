@@ -1,11 +1,17 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Runtime;
 // Needed for Picking photo/video
 [assembly: UsesPermission(Android.Manifest.Permission.ReadExternalStorage, MaxSdkVersion = 32)]
 [assembly: UsesPermission(Android.Manifest.Permission.ReadMediaAudio)]
 [assembly: UsesPermission(Android.Manifest.Permission.ReadMediaImages)]
 [assembly: UsesPermission(Android.Manifest.Permission.ReadMediaVideo)]
+[assembly: UsesPermission(Manifest.Permission.WakeLock)]
+[assembly: UsesPermission(Manifest.Permission.ReceiveBootCompleted)]
+[assembly: UsesPermission(Manifest.Permission.Vibrate)]
 
+[assembly: UsesPermission("android.permission.SCHEDULE_EXACT_ALARM")]
+[assembly: UsesPermission("android.permission.POST_NOTIFICATIONS")]
 // Needed for Taking photo/video
 [assembly: UsesPermission(Android.Manifest.Permission.Camera)]
 [assembly: UsesPermission(Android.Manifest.Permission.WriteExternalStorage, MaxSdkVersion = 32)]
