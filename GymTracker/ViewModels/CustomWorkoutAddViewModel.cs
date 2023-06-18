@@ -2,7 +2,9 @@
 using CommunityToolkit.Mvvm.Input;
 using GymTracker.Dtos;
 using GymTracker.Services;
+using GymTracker.Views;
 using Microsoft.Maui.Storage;
+using Plugin.LocalNotification;
 using System.IO;
 
 namespace GymTracker.ViewModels
@@ -15,6 +17,7 @@ namespace GymTracker.ViewModels
         readonly IWrapperService<WorkoutPlan> _workoutPlanWrapper;
         readonly IWrapperService<WorkoutPlanUpdateDto> _workoutPlanUpdateDtoWrapper;
         readonly IWrapperService<WorkoutPhoto> _photoWrapper;
+        readonly INotificationService _notificationService;
         readonly IMapper _mapper;
         IConnectivity _connectivity;
 
@@ -25,9 +28,9 @@ namespace GymTracker.ViewModels
         public ObservableCollection<SpecificExercise> DoneExercises { get; set; }
         public CustomWorkoutAddViewModel(IWrapperService<Exercise> wrapper, IMapper mapper,
             IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper,
-            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper, 
+            IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper,
             IWrapperService<WorkoutPlan> workoutPlanWrapper, IWrapperService<WorkoutPlanUpdateDto> workoutPlanUpdateDtoWrapper,
-            IWrapperService<WorkoutPhoto> photoWrapper)
+            IWrapperService<WorkoutPhoto> photoWrapper, INotificationService not)
         {
             _exerciesWrapper = wrapper;
             _specificExerciseWrapper = specificExerciseWrapper;
@@ -37,6 +40,7 @@ namespace GymTracker.ViewModels
             _workoutPlanWrapper = workoutPlanWrapper;
             _workoutPlanUpdateDtoWrapper = workoutPlanUpdateDtoWrapper;
             _photoWrapper = photoWrapper;
+            _notificationService = not;
         }
 
         [ObservableProperty]
@@ -67,7 +71,7 @@ namespace GymTracker.ViewModels
         {
             var exercises = value.Exercises.ToList();
 
-            if(prevWorkoutPlan?.Id is not null)
+            if (prevWorkoutPlan?.Id is not null)
             {
                 SelectedExercises.Clear();
                 foreach (var ex in exercises)
@@ -118,7 +122,7 @@ namespace GymTracker.ViewModels
         void ExerciseConfirm()
         {
             DoneExercises ??= new();
-            if(SpecificExerciseInEdit is null)
+            if (SpecificExerciseInEdit is null)
             {
                 return;
             }
@@ -208,10 +212,10 @@ namespace GymTracker.ViewModels
         }
         private async Task SendToApi(byte[] picture)
         {
-           Guid = Guid.NewGuid();
-           await _photoWrapper.SaveAsync(new WorkoutPhoto() { PhotoAsBytes = picture, Guid = Guid}, true, true);
+            Guid = Guid.NewGuid();
+            await _photoWrapper.SaveAsync(new WorkoutPhoto() { PhotoAsBytes = picture, Guid = Guid }, true, true);
         }
-       
+
         public void OnExerciseInfoEntry(string e, Exercise exercise)
         {
             if (e.Equals(EnteredExerciseInput))
@@ -227,7 +231,8 @@ namespace GymTracker.ViewModels
             var numberOfSets = splittedReps.Count();
             SpecificExerciseInEdit.Weight = double.Parse(weight);
             SpecificExerciseInEdit.Sets = (byte)numberOfSets;
-            var splittedRepsAsDoubles = splittedReps.Select(c => {
+            var splittedRepsAsDoubles = splittedReps.Select(c =>
+            {
                 double parsed;
                 if (double.TryParse(c, out parsed))
                 {
@@ -250,6 +255,10 @@ namespace GymTracker.ViewModels
         [RelayCommand]
         async Task PostWorkout()
         {
+            if (await _notificationService.AreNotificationsEnabled() == false)
+            {
+                await _notificationService.RequestNotificationPermission();
+            }
             var results = new List<int>();
             foreach (var specEx in DoneExercises)
             {
@@ -257,9 +266,9 @@ namespace GymTracker.ViewModels
                 var res = await _specificExerciseWrapper.SaveAsync(specExCreate, true);
                 results.Add(res.Id);
             }
-            var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki", Guid = Guid };
+            var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout = DateTime.Now, SpecificExercisesIds = results, Name = "Dodane z apki", Guid = Guid };
             var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
-            if(ChosedWorkoutPlan is not null)
+            if (ChosedWorkoutPlan is not null)
             {
                 var workoutPlanToUpdateWith = new WorkoutPlanUpdateDto();
                 var mapped = _mapper.Map<WorkoutPlanUpdateDto>(ChosedWorkoutPlan);
@@ -267,6 +276,9 @@ namespace GymTracker.ViewModels
                 mapped.DoneWorkoutsIds.Add(res2.Id);
                 await _workoutPlanUpdateDtoWrapper.SaveAsync(mapped, false);
             }
+            var bus = new AzureBusReceiver(_notificationService);
+            await Shell.Current.GoToAsync("//MainPage",false);
+            await bus.ReciveMessage("customworkout");
         }
     }
 }

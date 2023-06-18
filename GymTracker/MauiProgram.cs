@@ -4,6 +4,7 @@ using GymTracker.Services;
 using GymTracker.Models;
 using GymTracker.Views;
 using System.Reflection;
+using Plugin.LocalNotification;
 
 namespace GymTracker;
 
@@ -14,6 +15,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+            .UseLocalNotification()
             .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
 			{
