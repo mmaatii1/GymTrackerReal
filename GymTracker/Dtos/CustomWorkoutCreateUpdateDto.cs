@@ -12,6 +12,7 @@ namespace GymTracker.Dtos
         public List<int> SpecificExercisesIds { get; set; }
         public DateTime DateOfWorkout { get; set; }
         public string Name { get; set; }
+        public string Location { get; set; }
         public Guid? Guid { get; set; }
     }
 }

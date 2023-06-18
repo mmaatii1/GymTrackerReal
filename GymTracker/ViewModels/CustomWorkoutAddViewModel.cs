@@ -127,6 +127,8 @@ namespace GymTracker.ViewModels
             SpecificExerciseInEdit = null;
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(DoneExercises)));
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(SelectedExercises)));
+     
+            Vibration.Vibrate(TimeSpan.FromSeconds(1));
         }
 
         [RelayCommand]
@@ -206,6 +208,32 @@ namespace GymTracker.ViewModels
                 }
             }
         }
+        [RelayCommand]
+        public async void ChoosePhoto()
+        {
+            FileResult photo = await MediaPicker.Default.PickPhotoAsync();
+
+            if (photo != null)
+            {
+                // save the file into local storage
+                string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+
+                using Stream sourceStream = await photo.OpenReadAsync();
+                using FileStream localFileStream = File.OpenWrite(localFilePath);
+
+                await sourceStream.CopyToAsync(localFileStream);
+                byte[] fileBytes = null;
+                using (var stream = await photo.OpenReadAsync())
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await stream.CopyToAsync(memoryStream);
+                        fileBytes = memoryStream.ToArray();
+                    }
+                }
+                await SendToApi(fileBytes);
+            }
+        }
         private async Task SendToApi(byte[] picture)
         {
            Guid = Guid.NewGuid();
@@ -249,24 +277,74 @@ namespace GymTracker.ViewModels
 
         [RelayCommand]
         async Task PostWorkout()
+{
+    var results = new List<int>();
+    foreach (var specEx in DoneExercises)
+    {
+        var specExCreate = new SpecificExerciseUpdateCreateDto() { ExerciseId = specEx.Exercise.Id, Repetitions = specEx.Repetitions, Sets = specEx.Sets, Weight = specEx.Weight };
+        var res = await _specificExerciseWrapper.SaveAsync(specExCreate, true);
+        results.Add(res.Id);
+    }
+
+    string locationString = null;
+    try
+    {
+        // Try to get current location
+        Location location = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium));
+        var placemarks = await Geocoding.GetPlacemarksAsync(location.Latitude, location.Longitude);
+        var placemark = placemarks?.FirstOrDefault();
+        if (placemark != null)
         {
-            var results = new List<int>();
-            foreach (var specEx in DoneExercises)
-            {
-                var specExCreate = new SpecificExerciseUpdateCreateDto() { ExerciseId = specEx.Exercise.Id, Repetitions = specEx.Repetitions, Sets = specEx.Sets, Weight = specEx.Weight };
-                var res = await _specificExerciseWrapper.SaveAsync(specExCreate, true);
-                results.Add(res.Id);
-            }
-            var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki", Guid = Guid };
-            var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
-            if(ChosedWorkoutPlan is not null)
-            {
-                var workoutPlanToUpdateWith = new WorkoutPlanUpdateDto();
-                var mapped = _mapper.Map<WorkoutPlanUpdateDto>(ChosedWorkoutPlan);
-                mapped.ExercisesIds = ChosedWorkoutPlan.Exercises.Select(x => x.Id);
-                mapped.DoneWorkoutsIds.Add(res2.Id);
-                await _workoutPlanUpdateDtoWrapper.SaveAsync(mapped, false);
-            }
+            locationString = $"Country: {placemark.CountryName}, City: {placemark.Locality}, Street: {placemark.Thoroughfare}";
         }
+    }
+    catch (FeatureNotSupportedException fnsEx)
+    {
+        // Handle not supported on device exception
+        // Log the error or notify the user
+    }
+    catch (PermissionException pEx)
+    {
+        // Handle permission exception
+        // Log the error or notify the user
+    }
+    catch (Exception ex)
+    {
+        // Unable to get location
+        // Log the error or notify the user
+    }
+
+    var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki", Guid = Guid, Location = locationString };
+
+    var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
+    if(ChosedWorkoutPlan is not null)
+    {
+        var workoutPlanToUpdateWith = new WorkoutPlanUpdateDto();
+        var mapped = _mapper.Map<WorkoutPlanUpdateDto>(ChosedWorkoutPlan);
+        mapped.ExercisesIds = ChosedWorkoutPlan.Exercises.Select(x => x.Id);
+        mapped.DoneWorkoutsIds.Add(res2.Id);
+        await _workoutPlanUpdateDtoWrapper.SaveAsync(mapped, false);
+    }
+}
+        //async Task PostWorkout()
+        //{
+        //    var results = new List<int>();
+        //    foreach (var specEx in DoneExercises)
+        //    {
+        //        var specExCreate = new SpecificExerciseUpdateCreateDto() { ExerciseId = specEx.Exercise.Id, Repetitions = specEx.Repetitions, Sets = specEx.Sets, Weight = specEx.Weight };
+        //        var res = await _specificExerciseWrapper.SaveAsync(specExCreate, true);
+        //        results.Add(res.Id);
+        //    }
+        //    var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout= DateTime.Now, SpecificExercisesIds = results, Name="Dodane z apki", Guid = Guid };
+        //    var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
+        //    if(ChosedWorkoutPlan is not null)
+        //    {
+        //        var workoutPlanToUpdateWith = new WorkoutPlanUpdateDto();
+        //        var mapped = _mapper.Map<WorkoutPlanUpdateDto>(ChosedWorkoutPlan);
+        //        mapped.ExercisesIds = ChosedWorkoutPlan.Exercises.Select(x => x.Id);
+        //        mapped.DoneWorkoutsIds.Add(res2.Id);
+        //        await _workoutPlanUpdateDtoWrapper.SaveAsync(mapped, false);
+        //    }
+        //}
     }
 }
