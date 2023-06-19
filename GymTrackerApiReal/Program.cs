@@ -48,8 +48,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 #region setupDb
 builder.Services.AddDbContext<TrackingDbContext>
-    // "Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-    (o => o.UseSqlServer(connectionString: "Server = localhost\\SQLEXPRESS01; Database = master; TrustServerCertificate = True; Integrated Security = true; Initial Catalog = TrackerReal"));
+    // ""
+    (o => o.UseSqlServer(connectionString: "Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 #endregion
 var app = builder.Build();
 app.UseSwagger();
@@ -140,8 +140,8 @@ app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWork
     byte[] serializedBytes = Encoding.UTF8.GetBytes(serialized);
     DistributedCacheEntryOptions expiration = new DistributedCacheEntryOptions
     {
-        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
-        SlidingExpiration = TimeSpan.FromSeconds(30),
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(15),
+        SlidingExpiration = TimeSpan.FromSeconds(15),
     };
     await redis.SetAsync("customworkouts", serializedBytes,expiration);
 
@@ -181,12 +181,16 @@ app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan>
                        .Include(c => c.Exercises)
                        .ThenInclude(a => a.Muscle)
                        .ToListAsync();
-    var serialized = System.Text.Json.JsonSerializer.Serialize(workoutsPlans);
+    var settings = new JsonSerializerOptions
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles
+    };
+    var serialized = System.Text.Json.JsonSerializer.Serialize(workoutsPlans,settings);
     byte[] serializedBytes = Encoding.UTF8.GetBytes(serialized);
     DistributedCacheEntryOptions expiration = new DistributedCacheEntryOptions
     {
-        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
-        SlidingExpiration = TimeSpan.FromSeconds(30),
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(15),
+        SlidingExpiration = TimeSpan.FromSeconds(15),
     };
     await redis.SetAsync("workoutplan", serializedBytes, expiration);
 

@@ -283,6 +283,10 @@ namespace GymTracker.ViewModels
         [RelayCommand]
         async Task PostWorkout()
         {
+            if(DoneExercises is null)
+            {
+                return;
+            }
             if (await _notificationService.AreNotificationsEnabled() == false)
             {
                 await _notificationService.RequestNotificationPermission();
@@ -306,20 +310,9 @@ namespace GymTracker.ViewModels
                     locationString = $"Country: {placemark.CountryName}, City: {placemark.Locality}, Street: {placemark.Thoroughfare}";
                 }
             }
-            catch (FeatureNotSupportedException fnsEx)
-            {
-                // Handle not supported on device exception
-                // Log the error or notify the user
-            }
-            catch (PermissionException pEx)
-            {
-                // Handle permission exception
-                // Log the error or notify the user
-            }
             catch (Exception ex)
             {
-                // Unable to get location
-                // Log the error or notify the user
+                throw;
             }
             var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout = DateTime.Now, SpecificExercisesIds = results, Name = "Dodane z apki", Guid = Guid, Location = locationString };
             var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
