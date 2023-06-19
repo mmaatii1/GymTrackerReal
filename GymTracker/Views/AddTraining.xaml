@@ -45,7 +45,7 @@
                     <ViewCell>
                         <Grid>
                             <Frame VerticalOptions="Center" Padding="10"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}" >
-                                <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="White"></Label>
+                                <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="Red"></Label>
                             </Frame>
                         </Grid>
                     </ViewCell>
@@ -142,20 +142,23 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </VerticalStackLayout>
+       
+        <HorizontalStackLayout HorizontalOptions="CenterAndExpand">
+            <Button
+                                        Margin="5"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        Command="{Binding TakePhotoCommand}"
+                                        Text="Take photo :D" />
+            <Button
+                                        Margin="5"
+                                        BackgroundColor="{StaticResource Accent}"
+                                        Command="{Binding ChoosePhotoCommand}"
+                                        Text="ChoosePhoto :D" />
+        </HorizontalStackLayout>
         <Button
                                         Margin="5"
                                         BackgroundColor="{StaticResource Accent}"
                                         Command="{Binding PostWorkoutCommand}"
                                         Text="Confirm" />
-        <Button
-                                        Margin="5"
-                                        BackgroundColor="{StaticResource Accent}"
-                                        Command="{Binding TakePhotoCommand}"
-                                        Text="Take photo :D" />
-        <Button
-                                        Margin="5"
-                                        BackgroundColor="{StaticResource Accent}"
-                                        Command="{Binding ChoosePhotoCommand}"
-                                        Text="ChoosePhoto :D" />
     </StackLayout>
 </ContentPage>

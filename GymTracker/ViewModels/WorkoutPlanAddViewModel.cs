@@ -89,6 +89,7 @@ namespace GymTracker.ViewModels
             finally
             {
                 IsBusy = false;
+                await Shell.Current.GoToAsync("//MainPage", false);
             }
 
         }

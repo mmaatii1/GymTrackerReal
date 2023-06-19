@@ -1,5 +1,6 @@
 namespace GymTracker.Views;
-
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 public partial class AddWorkoutPlan : ContentPage
 {
     WorkoutPlanAddViewModel _viewModel;
@@ -8,6 +9,7 @@ public partial class AddWorkoutPlan : ContentPage
 		InitializeComponent();
         BindingContext = viewModel;
         _viewModel = viewModel;
+
     }
     private void searchBar_TextChanged(object sender, TextChangedEventArgs e)
     {

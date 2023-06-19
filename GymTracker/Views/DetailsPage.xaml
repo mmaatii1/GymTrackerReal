@@ -59,7 +59,7 @@
 
             </CollectionView>
             <HorizontalStackLayout Grid.Row="1" >
-                <Image Margin="10" MaximumWidthRequest="150" MaximumHeightRequest="150" Source="{Binding WorkoutPhoto}"></Image>
+                <Image HorizontalOptions="Center" Margin="10" MaximumWidthRequest="150" MaximumHeightRequest="150" Source="{Binding WorkoutPhoto}"></Image>
                 <Button
             Margin="8"
             Command="{Binding SetImageCommand}"

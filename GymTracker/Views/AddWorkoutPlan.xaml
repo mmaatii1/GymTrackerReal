@@ -31,8 +31,8 @@
                     <DataTemplate >
                         <ViewCell>
                             <Grid>
-                                <Frame VerticalOptions="Center" Padding="10"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}" >
-                                    <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="White"></Label>
+                                <Frame VerticalOptions="Center" Padding="10"  HasShadow="True" BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}" >
+                                    <Label x:Name="searchLabel" VerticalOptions="Center" Text="{Binding .}" TextColor="Red"></Label>
                                 </Frame>
                             </Grid>
                         </ViewCell>

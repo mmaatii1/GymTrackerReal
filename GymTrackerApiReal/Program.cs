@@ -1,7 +1,4 @@
 using AutoMapper;
-using Azure.Identity;
-using Azure.Storage;
-using Azure.Storage.Blobs;
 using GymTrackerApiReal.Data;
 using GymTrackerApiReal.Dtos.CustomWorkout;
 using GymTrackerApiReal.Dtos.Exercise;
@@ -10,29 +7,19 @@ using GymTrackerApiReal.Dtos.Picture;
 using GymTrackerApiReal.Dtos.SpecificExercise;
 using GymTrackerApiReal.Dtos.WorkoutPlan;
 using GymTrackerApiReal.Interfaces;
-using GymTrackerApiReal.Migrations;
 using GymTrackerApiReal.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
+using StackExchange.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.Resource;
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics.Metrics;
-using System.IO;
-using System.Net.WebSockets;
+
 using System.Reflection;
-using System.Text.Json;
-using System.Text;
 using System.Text.Json.Serialization;
 using Azure.Storage.Blobs.Models;
-using System;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text;
+using System.Text.Json;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,15 +31,19 @@ builder.Services.AddAuthorization();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+builder.Services.Configure<JsonSerializerOptions>(options =>
 {
-    options.SerializerOptions
-               .ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 #region services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "gymtracker.redis.cache.windows.net:6380,password=D3ELJeEXsc2dbWk3OsIUo7B0HpeDQLPuQAzCaKY3oL8=,ssl=True,abortConnect=False";
+    options.InstanceName = "master";
+});
 #endregion
 
 #region setupDb
@@ -117,22 +108,42 @@ app.MapPost("api/WorkoutPhoto", async(WorkoutPhoto photo )=>{
 
 }).WithName("WorkoutPhoto");
 
-app.MapDelete("/api/CustomWorkout/{id}", async (int id,IGenericRepository < CustomWorkout> repo, IMapper mapper) =>
+app.MapDelete("/api/CustomWorkout/{id}", async (int id,IGenericRepository < CustomWorkout> repo, IMapper mapper ) =>
 {
+    
     var workouts = await repo.DeleteAsync(id);
 
     return Results.Ok();
 })
 .WithName("DeleteWorkout");
 
-app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
+app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWorkout> repo, IMapper mapper, IDistributedCache redis) =>
 {
+    byte[] fromRedis = await redis.GetAsync("customworkouts");
+    if ((fromRedis?.Count() ?? 0) > 0)
+    {
+        var workoutstring = Encoding.UTF8.GetString(fromRedis);
+        List<CustomWorkout> listFromRedis = System.Text.Json.JsonSerializer.Deserialize<List<CustomWorkout>>(workoutstring);
+        return Results.Ok(mapper.Map<List<CustomWorkoutReadDto>>(listFromRedis));
+    }
     var workouts = await repo.GetAsQueryable()
                        .Include(c => c.CustomWorkoutSpecificExercises)
                        .ThenInclude(e => e.Exercise)
                        .ThenInclude(ex => ex.Muscle)
                        .Include(cw=>cw.WorkoutPlan)
                        .ToListAsync();
+    var settings = new JsonSerializerOptions
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles
+    };
+    var serialized = System.Text.Json.JsonSerializer.Serialize(workouts,options: settings);
+    byte[] serializedBytes = Encoding.UTF8.GetBytes(serialized);
+    DistributedCacheEntryOptions expiration = new DistributedCacheEntryOptions
+    {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
+        SlidingExpiration = TimeSpan.FromSeconds(30),
+    };
+    await redis.SetAsync("customworkouts", serializedBytes,expiration);
 
     return Results.Ok(mapper.Map<List<CustomWorkoutReadDto>>(workouts));
 })
@@ -156,13 +167,29 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
 })
 .WithName("PostWorkout");
 
-app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan> repo, IMapper mapper) =>
+app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan> repo, IMapper mapper, IDistributedCache redis) =>
 {
+    byte[] fromRedis = await redis.GetAsync("workoutplan");
+    if ((fromRedis?.Count() ?? 0) > 0)
+    {
+        var workoutstring = Encoding.UTF8.GetString(fromRedis);
+        List<WorkoutPlan> listFromRedis = System.Text.Json.JsonSerializer.Deserialize<List<WorkoutPlan>>(workoutstring);
+        return Results.Ok(mapper.Map<List<WorkoutPlanReadDto>>(listFromRedis));
+    }
     var workoutsPlans = await repo.GetAsQueryable()
                        .Include(c=>c.DoneWorkouts)
                        .Include(c => c.Exercises)
                        .ThenInclude(a => a.Muscle)
                        .ToListAsync();
+    var serialized = System.Text.Json.JsonSerializer.Serialize(workoutsPlans);
+    byte[] serializedBytes = Encoding.UTF8.GetBytes(serialized);
+    DistributedCacheEntryOptions expiration = new DistributedCacheEntryOptions
+    {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
+        SlidingExpiration = TimeSpan.FromSeconds(30),
+    };
+    await redis.SetAsync("workoutplan", serializedBytes, expiration);
+
     var mapped = mapper.Map<List<WorkoutPlanReadDto>>(workoutsPlans);
     return Results.Ok(mapped);
 })

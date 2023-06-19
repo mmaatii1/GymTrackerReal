@@ -11,6 +11,7 @@
 	  <PackageReference Include="AutoMapper" Version="12.0.1" />
 	  <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
 	  <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.15.0" />
+	  <PackageReference Include="Azure.ResourceManager.Redis" Version="1.1.1" />
 	  <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
 	  <PackageReference Include="Azure.Storage.Blobs" Version="12.16.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.13" />
@@ -25,10 +26,13 @@
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
+	  <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.7" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="6.0.1" />
 	  <PackageReference Include="Microsoft.Identity.Web" Version="1.16.0" />
 	  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	  <PackageReference Include="StackExchange.Redis" Version="2.6.116" />
+	  <PackageReference Include="StackExchange.Redis.Extensions.Core" Version="9.1.0" />
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
