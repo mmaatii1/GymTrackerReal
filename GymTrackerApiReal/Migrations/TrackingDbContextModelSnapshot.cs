@@ -34,7 +34,10 @@ namespace GymTrackerApiReal.Migrations
 
                     b.HasIndex("WorkoutPlansId");
 
-                    b.ToTable("ExerciseWorkoutPlan");
+                    b.ToTable("ExerciseWorkoutPlan", t =>
+                        {
+                            t.HasTrigger("ExerciseWorkoutPlan_Trigger");
+                        });
                 });
 
             modelBuilder.Entity("GymTrackerApiReal.Models.CustomWorkout", b =>
@@ -66,7 +69,10 @@ namespace GymTrackerApiReal.Migrations
 
                     b.HasIndex("WorkoutPlanId");
 
-                    b.ToTable("CustomWorkouts");
+                    b.ToTable("CustomWorkouts", t =>
+                        {
+                            t.HasTrigger("SomeTrigger");
+                        });
                 });
 
             modelBuilder.Entity("GymTrackerApiReal.Models.Exercise", b =>
@@ -88,7 +94,11 @@ namespace GymTrackerApiReal.Migrations
 
                     b.HasIndex("MuscleId");
 
-                    b.ToTable("Exercises");
+                    b.ToTable("Exercises", t =>
+                        {
+                            t.HasTrigger("SomeTrigger")
+                                .HasDatabaseName("SomeTrigger1");
+                        });
                 });
 
             modelBuilder.Entity("GymTrackerApiReal.Models.Muscle", b =>
@@ -108,7 +118,11 @@ namespace GymTrackerApiReal.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Muscles");
+                    b.ToTable("Muscles", t =>
+                        {
+                            t.HasTrigger("SomeTrigger")
+                                .HasDatabaseName("SomeTrigger2");
+                        });
                 });
 
             modelBuilder.Entity("GymTrackerApiReal.Models.SpecificExercise", b =>
@@ -141,7 +155,11 @@ namespace GymTrackerApiReal.Migrations
 
                     b.HasIndex("ExerciseId");
 
-                    b.ToTable("SpecificExercises");
+                    b.ToTable("SpecificExercises", t =>
+                        {
+                            t.HasTrigger("SomeTrigger")
+                                .HasDatabaseName("SomeTrigger3");
+                        });
                 });
 
             modelBuilder.Entity("GymTrackerApiReal.Models.WorkoutPlan", b =>
@@ -158,7 +176,11 @@ namespace GymTrackerApiReal.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkoutPlans");
+                    b.ToTable("WorkoutPlans", t =>
+                        {
+                            t.HasTrigger("SomeTrigger")
+                                .HasDatabaseName("SomeTrigger4");
+                        });
                 });
 
             modelBuilder.Entity("ExerciseWorkoutPlan", b =>

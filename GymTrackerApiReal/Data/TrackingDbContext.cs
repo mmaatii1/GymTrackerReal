@@ -1,5 +1,6 @@
 ﻿using GymTrackerApiReal.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 using System.Xml;
 
 namespace GymTrackerApiReal.Data
@@ -15,7 +16,10 @@ namespace GymTrackerApiReal.Data
         public DbSet<Muscle> Muscles { get; set; }
         public DbSet<SpecificExercise> SpecificExercises { get; set; }
         public DbSet<WorkoutPlan> WorkoutPlans { get; set; }
-
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SpecificExercise>(entity =>
@@ -25,8 +29,16 @@ namespace GymTrackerApiReal.Data
                         v => string.Join(',', v),
                         v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(double.Parse).ToArray());
             });
-
-
+            modelBuilder.Entity<CustomWorkout>()
+        .ToTable(tb => tb.HasTrigger("SomeTrigger"));
+            modelBuilder.Entity<Exercise>()
+      .ToTable(tb => tb.HasTrigger("SomeTrigger"));
+            modelBuilder.Entity<Muscle>()
+      .ToTable(tb => tb.HasTrigger("SomeTrigger"));
+            modelBuilder.Entity<SpecificExercise>()
+      .ToTable(tb => tb.HasTrigger("SomeTrigger"));
+            modelBuilder.Entity<WorkoutPlan>()
+      .ToTable(tb => tb.HasTrigger("SomeTrigger"));
             modelBuilder.Entity<CustomWorkout>()
     .HasOne(c => c.WorkoutPlan)
     .WithMany(w => w.DoneWorkouts)

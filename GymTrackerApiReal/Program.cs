@@ -20,6 +20,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 {
     options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+
 
 #region services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
