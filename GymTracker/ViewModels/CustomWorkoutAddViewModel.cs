@@ -186,31 +186,38 @@ namespace GymTracker.ViewModels
         [RelayCommand]
         public async void TakePhoto()
         {
-            if (MediaPicker.Default.IsCaptureSupported)
+            try
             {
-                FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
-
-                if (photo != null)
+                if (MediaPicker.Default.IsCaptureSupported)
                 {
-                    // save the file into local storage
-                    string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                    FileResult photo = await MediaPicker.Default.CapturePhotoAsync();
 
-                    using Stream sourceStream = await photo.OpenReadAsync();
-                    using FileStream localFileStream = File.OpenWrite(localFilePath);
-
-                    await sourceStream.CopyToAsync(localFileStream);
-                    byte[] fileBytes = null;
-                    using (var stream = await photo.OpenReadAsync())
+                    if (photo != null)
                     {
-                        using (var memoryStream = new MemoryStream())
+                        // save the file into local storage
+                        string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+
+                        using Stream sourceStream = await photo.OpenReadAsync();
+                        using FileStream localFileStream = File.OpenWrite(localFilePath);
+
+                        await sourceStream.CopyToAsync(localFileStream);
+                        byte[] fileBytes = null;
+                        using (var stream = await photo.OpenReadAsync())
                         {
-                            await stream.CopyToAsync(memoryStream);
-                            fileBytes = memoryStream.ToArray();
+                            using (var memoryStream = new MemoryStream())
+                            {
+                                await stream.CopyToAsync(memoryStream);
+                                fileBytes = memoryStream.ToArray();
+                            }
                         }
+                        await SendToApi(fileBytes);
                     }
-                    await SendToApi(fileBytes);
                 }
+            }catch (Exception ex)
+            {
+                return;
             }
+           
         }
         [RelayCommand]
         public async void ChoosePhoto()
