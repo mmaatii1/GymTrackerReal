@@ -36,7 +36,7 @@
         <ListView x:Name="searchResults"
                   BackgroundColor="#0C090D"
                   IsVisible="{Binding IsSearchResultVisible}"
-                  ItemsSource="{Binding SearchResults}"xes
+                  ItemsSource="{Binding SearchResults}"
                   SeparatorColor="{StaticResource Accent}"
                   Margin="5"
                   >
