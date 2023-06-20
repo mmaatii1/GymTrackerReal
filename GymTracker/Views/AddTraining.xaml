@@ -36,7 +36,7 @@
         <ListView x:Name="searchResults"
                   BackgroundColor="#0C090D"
                   IsVisible="{Binding IsSearchResultVisible}"
-                  ItemsSource="{Binding SearchResults}"
+                  ItemsSource="{Binding SearchResults}"xes
                   SeparatorColor="{StaticResource Accent}"
                   Margin="5"
                   >
@@ -45,7 +45,7 @@
                     <ViewCell>
                         <Grid>
                             <Frame VerticalOptions="Center" Padding="10"  HasShadow="True"  BackgroundColor="#0C090D" BorderColor="{StaticResource Accent}" >
-                                <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="Red"></Label>
+                                <Label  VerticalOptions="Center" Text="{Binding .}" TextColor="{AppThemeBinding Light=White, Dark=White}"></Label>
                             </Frame>
                         </Grid>
                     </ViewCell>

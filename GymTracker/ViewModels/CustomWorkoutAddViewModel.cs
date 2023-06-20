@@ -319,7 +319,7 @@ namespace GymTracker.ViewModels
             }
             catch (Exception ex)
             {
-                throw;
+                return;
             }
             var workout = new CustomWorkoutCreateUpdateDto() { DateOfWorkout = DateTime.Now, SpecificExercisesIds = results, Name = "Dodane z apki", Guid = Guid, Location = locationString };
             var res2 = await _customWorkoutWrapper.SaveAsync(workout, true);
