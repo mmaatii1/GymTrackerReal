@@ -5,18 +5,25 @@ using GymTrackerApiReal.Models;
 using Newtonsoft.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GymTracker.Shared;
 
 namespace GymTrackerApiReal.Data
 {
-    public static class CustomWorkoutAzureBus
+    public class CustomWorkoutAzureBus
     {
-        public static async void SendToBus(string nameOfQueue, int numOfMess, CustomWorkoutCreateUpdateDto customWorkout)
+        private readonly IKeyVaultService _keyVaultService;
+
+        public CustomWorkoutAzureBus(IKeyVaultService keyVault)
+        {
+            _keyVaultService = keyVault;
+        }
+        public async void SendToBus(string nameOfQueue, int numOfMess, CustomWorkoutCreateUpdateDto customWorkout)
         {
             var clientOptions = new ServiceBusClientOptions()
             {
                 TransportType = ServiceBusTransportType.AmqpWebSockets
             };
-            var client = new ServiceBusClient("Endpoint=sb://gymtracker.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=C29I2CTgJOCADJhl1X/16tC7tO5zJs3qN+ASbNtDWCs=", clientOptions);
+            var client = new ServiceBusClient(await _keyVaultService.GetSecret("ServiceBusEndpoint"), clientOptions);
             var sender = client.CreateSender(nameOfQueue);
 
             using ServiceBusMessageBatch messageBatch = await sender.CreateMessageBatchAsync();

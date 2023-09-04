@@ -1,5 +1,4 @@
-﻿using GymTracker.Models;
-
+﻿
 namespace GymTracker.Services
 {
     public interface IRestService<TEntity> where TEntity : class

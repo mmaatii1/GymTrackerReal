@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using GymTracker.Shared;
 using Plugin.LocalNotification;
 
 namespace GymTracker.Services
@@ -6,13 +7,15 @@ namespace GymTracker.Services
     class AzureBusReceiver
     {
         readonly INotificationService _notificationService;
-        public AzureBusReceiver(INotificationService not)
+        readonly IKeyVaultService _keyVaultService;
+        public AzureBusReceiver(INotificationService not,IKeyVaultService keyVault)
         {
+            _keyVaultService= keyVault;
             _notificationService = not;
         }
         public async Task ReciveMessage(string queName)
         {
-            await using var client = new ServiceBusClient("Endpoint=sb://gymtracker.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=C29I2CTgJOCADJhl1X/16tC7tO5zJs3qN+ASbNtDWCs=");
+            await using var client = new ServiceBusClient(await _keyVaultService.GetSecret("ServiceBusEndpoint"));
 
             var receiver = client.CreateReceiver(queName);
 

@@ -5,6 +5,8 @@ using GymTracker.Models;
 using GymTracker.Views;
 using System.Reflection;
 using Plugin.LocalNotification;
+using Microsoft.Extensions.DependencyInjection;
+using GymTracker.Shared;
 
 namespace GymTracker;
 
@@ -28,6 +30,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IHttpsClientHandlerService, HttpsClientHandlerService>();
         builder.Services.AddScoped(typeof(IRestService<>), typeof(RestService<>));
         builder.Services.AddScoped(typeof(IWrapperService<>), typeof(WrapperService<>));
+        builder.Services.AddScoped<IKeyVaultService, KeyVaultService>();
 
         builder.Services.AddSingleton<MainPage>();
         builder.Services.AddTransient<DetailsPage>();

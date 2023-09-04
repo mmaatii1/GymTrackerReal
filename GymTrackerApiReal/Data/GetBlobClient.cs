@@ -1,15 +1,22 @@
 ﻿using Azure.Storage.Blobs;
+using GymTracker.Shared;
 using System;
 
 namespace GymTrackerApiReal.Data
 {
-    public static class GetBlobClient
+    public class GetBlobClient
     {
-        public static BlobClient GetClientBasedOnGuid(string guid)
+        private readonly IKeyVaultService _keyVaultService;
+
+        public GetBlobClient(IKeyVaultService keyVault)
+        {
+            _keyVaultService = keyVault;
+        }
+        public async Task<BlobClient> GetClientBasedOnGuid(string guid)
         {
             try
             {
-                BlobServiceClient blobServiceClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=gymtrackerstorage;AccountKey=Ln2Ijx26rp8tFA3prjufPWBj5M1KyVkrHdVXCFx0J/+Bqo8FeXgeH157vKSfJOhiwDbce+2KRnob+AStWOjvEA==;EndpointSuffix=core.windows.net");
+                BlobServiceClient blobServiceClient = new BlobServiceClient(await _keyVaultService.GetSecret("BlobEndpoint"));
                 BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("trainingphotos");
                 BlobClient blobClient = containerClient.GetBlobClient(guid);
                 return blobClient;

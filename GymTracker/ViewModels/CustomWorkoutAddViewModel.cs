@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using GymTracker.Dtos;
 using GymTracker.Services;
+using GymTracker.Shared;
 using GymTracker.Views;
 using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
@@ -18,6 +19,7 @@ namespace GymTracker.ViewModels
         readonly IWrapperService<WorkoutPlanUpdateDto> _workoutPlanUpdateDtoWrapper;
         readonly IWrapperService<WorkoutPhoto> _photoWrapper;
         readonly INotificationService _notificationService;
+        readonly IKeyVaultService _keyVaultService;
         readonly IMapper _mapper;
         IConnectivity _connectivity;
 
@@ -30,7 +32,7 @@ namespace GymTracker.ViewModels
             IWrapperService<SpecificExerciseUpdateCreateDto> specificExerciseWrapper,
             IConnectivity connectivity, IWrapperService<CustomWorkoutCreateUpdateDto> customWorkoutWrapper,
             IWrapperService<WorkoutPlan> workoutPlanWrapper, IWrapperService<WorkoutPlanUpdateDto> workoutPlanUpdateDtoWrapper,
-            IWrapperService<WorkoutPhoto> photoWrapper, INotificationService not)
+            IWrapperService<WorkoutPhoto> photoWrapper, INotificationService not, IKeyVaultService keyVault)
         {
             _exerciesWrapper = wrapper;
             _specificExerciseWrapper = specificExerciseWrapper;
@@ -41,6 +43,7 @@ namespace GymTracker.ViewModels
             _workoutPlanUpdateDtoWrapper = workoutPlanUpdateDtoWrapper;
             _photoWrapper = photoWrapper;
             _notificationService = not;
+            _keyVaultService = keyVault;
         }
 
         [ObservableProperty]
@@ -331,7 +334,7 @@ namespace GymTracker.ViewModels
                 mapped.DoneWorkoutsIds.Add(res2.Id);
                 await _workoutPlanUpdateDtoWrapper.SaveAsync(mapped, false);
             }
-            var bus = new AzureBusReceiver(_notificationService);
+            var bus = new AzureBusReceiver(_notificationService,_keyVaultService);
             await Shell.Current.GoToAsync("//MainPage",false);
             await bus.ReciveMessage("customworkout");
         }

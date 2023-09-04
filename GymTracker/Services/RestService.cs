@@ -4,6 +4,7 @@ using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
+using GymTracker.Shared;
 
 namespace GymTracker.Services
 {
@@ -11,10 +12,11 @@ namespace GymTracker.Services
     {
         HttpClient _client;
         IHttpsClientHandlerService _httpsClientHandlerService;
-
+        private readonly IKeyVaultService _keyVaultService;
+        private readonly string ApiUrl;
         public List<TEntity> Items { get; private set; }
 
-        public RestService(IHttpsClientHandlerService service)
+        public RestService(IHttpsClientHandlerService service,IKeyVaultService keyVault)
         {
 #if DEBUG
             _httpsClientHandlerService = service;
@@ -26,14 +28,15 @@ namespace GymTracker.Services
 #else
             _client = new HttpClient();
 #endif
-          
+          _keyVaultService = keyVault;
+          ApiUrl = _keyVaultService.GetSecret("ApiUrl").Result;
         }
 
         public async Task<List<TEntity>> GetAllAsync()
         {
             Items = new List<TEntity>();
 
-            Uri uri = new Uri(string.Format(Constants.RestUrl + typeof(TEntity).Name, string.Empty));
+            Uri uri = new Uri(string.Format(ApiUrl + typeof(TEntity).Name, string.Empty));
             try
             {
                 HttpResponseMessage response = await _client.GetAsync(uri);
@@ -56,7 +59,7 @@ namespace GymTracker.Services
             try
             {
                 string apiEndpoint = typeof(TEntity).GetCustomAttribute<ApiEndpointAttribute>()?.EndpointName ?? typeof(TEntity).Name;
-                Uri uri = new Uri(string.Format(Constants.RestUrl + apiEndpoint, string.Empty));
+                Uri uri = new Uri(string.Format(ApiUrl + apiEndpoint, string.Empty));
 
                 string json = JsonConvert.SerializeObject(item);
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -92,7 +95,7 @@ namespace GymTracker.Services
             try
             {
                 string apiEndpoint =  typeof(TEntity).Name;
-                Uri uri = new Uri(string.Format(Constants.RestUrl + apiEndpoint +"/" + id, string.Empty));
+                Uri uri = new Uri(string.Format(ApiUrl + apiEndpoint +"/" + id, string.Empty));
 
                 HttpResponseMessage response = await _client.DeleteAsync(uri);
                 if (response.IsSuccessStatusCode)
@@ -106,7 +109,7 @@ namespace GymTracker.Services
 
         public async Task<TEntity> GetByIdAsync(string id)
         {
-            Uri uri = new Uri(string.Format(Constants.RestUrl + typeof(TEntity).Name + "/" + id, string.Empty));
+            Uri uri = new Uri(string.Format(ApiUrl + typeof(TEntity).Name + "/" + id, string.Empty));
             try
             {
                 HttpResponseMessage response = await _client.GetAsync(uri);

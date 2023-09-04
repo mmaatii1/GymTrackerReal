@@ -1,7 +1,5 @@
 ﻿using GymTrackerApiReal.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata;
-using System.Xml;
 
 namespace GymTrackerApiReal.Data
 {
@@ -10,7 +8,6 @@ namespace GymTrackerApiReal.Data
         public TrackingDbContext(DbContextOptions<TrackingDbContext> options) : base(options)
         {
         }
-
         public DbSet<CustomWorkout> CustomWorkouts { get; set; }
         public DbSet<Exercise> Exercises { get; set; }
         public DbSet<Muscle> Muscles { get; set; }
@@ -55,7 +52,5 @@ namespace GymTrackerApiReal.Data
       .HasForeignKey(se => se.CustomWorkoutId)
       .IsRequired(false);
         }
-
-      
     }
 }

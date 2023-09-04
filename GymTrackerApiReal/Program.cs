@@ -9,18 +9,15 @@ using GymTrackerApiReal.Dtos.WorkoutPlan;
 using GymTrackerApiReal.Interfaces;
 using GymTrackerApiReal.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using StackExchange.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text;
 using System.Text.Json;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
+using GymTracker.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,10 +37,12 @@ builder.Services.Configure<JsonSerializerOptions>(options =>
 
 #region services
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IKeyVaultService, KeyVaultService>();
+
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "gymtracker.redis.cache.windows.net:6380,password=D3ELJeEXsc2dbWk3OsIUo7B0HpeDQLPuQAzCaKY3oL8=,ssl=True,abortConnect=False";
+    options.Configuration = Environment.GetEnvironmentVariable("Redis");
     options.InstanceName = "master";
 });
 #endregion
@@ -51,7 +50,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 #region setupDb
 builder.Services.AddDbContext<TrackingDbContext>
     // ""
-    (o => o.UseSqlServer(connectionString: "Server=tcp:gymtrackerapirealdbserver.database.windows.net,1433;Initial Catalog=GymTrackerApiReal_db;Persist Security Info=False;User ID=Mati;Password=Szymonek12;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+    (o => o.UseSqlServer(Environment.GetEnvironmentVariable("Sql")));
 #endregion
 var app = builder.Build();
 app.UseSwagger();
@@ -64,9 +63,9 @@ app.UseAuthorization();
 
 var scopeRequiredByApi = app.Configuration["AzureAd:Scopes"] ?? "";
 
-app.MapGet("api/WorkoutPhoto/{guid}", async (string guid) =>
+app.MapGet("api/WorkoutPhoto/{guid}", async (string guid, GetBlobClient blob) =>
 {
-    var blobClient= GetBlobClient.GetClientBasedOnGuid(guid);
+    var blobClient = await blob.GetClientBasedOnGuid(guid);
     BlobDownloadInfo download = await blobClient.DownloadAsync();
 
     try
@@ -86,23 +85,24 @@ app.MapGet("api/WorkoutPhoto/{guid}", async (string guid) =>
     }
 
 }).WithName("GetWorkoutPhoto");
-app.MapPost("api/WorkoutPhoto", async(WorkoutPhoto photo )=>{
+app.MapPost("api/WorkoutPhoto", async (WorkoutPhoto photo, GetBlobClient blob) =>
+{
 
-    var blobClient = GetBlobClient.GetClientBasedOnGuid(photo.Guid.ToString());
+    var blobClient = await blob.GetClientBasedOnGuid(photo.Guid.ToString());
 
     FileStream fileStream;
     try
     {
-    using (fileStream = new FileStream(photo.Guid.ToString(), FileMode.Create, FileAccess.ReadWrite))
-    {
-        fileStream.Write(photo.PhotoAsBytes, 0, photo.PhotoAsBytes.Length);
-        fileStream.Position= 0;
-        await blobClient.UploadAsync(fileStream, true);
-        fileStream.Dispose();
-        File.Delete(photo.Guid.ToString());
+        using (fileStream = new FileStream(photo.Guid.ToString(), FileMode.Create, FileAccess.ReadWrite))
+        {
+            fileStream.Write(photo.PhotoAsBytes, 0, photo.PhotoAsBytes.Length);
+            fileStream.Position = 0;
+            await blobClient.UploadAsync(fileStream, true);
+            fileStream.Dispose();
+            File.Delete(photo.Guid.ToString());
+        }
     }
-    }
-    catch(Exception ex)
+    catch (Exception ex)
     {
         return await Task.FromResult(false);
     }
@@ -110,9 +110,9 @@ app.MapPost("api/WorkoutPhoto", async(WorkoutPhoto photo )=>{
 
 }).WithName("WorkoutPhoto");
 
-app.MapDelete("/api/CustomWorkout/{id}", async (int id,IGenericRepository < CustomWorkout> repo, IMapper mapper ) =>
+app.MapDelete("/api/CustomWorkout/{id}", async (int id, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
 {
-    
+
     var workouts = await repo.DeleteAsync(id);
 
     return Results.Ok();
@@ -132,26 +132,26 @@ app.MapGet($"/api/{nameof(CustomWorkout)}", async (IGenericRepository<CustomWork
                        .Include(c => c.CustomWorkoutSpecificExercises)
                        .ThenInclude(e => e.Exercise)
                        .ThenInclude(ex => ex.Muscle)
-                       .Include(cw=>cw.WorkoutPlan)
+                       .Include(cw => cw.WorkoutPlan)
                        .ToListAsync();
     var settings = new JsonSerializerOptions
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    var serialized = System.Text.Json.JsonSerializer.Serialize(workouts,options: settings);
+    var serialized = System.Text.Json.JsonSerializer.Serialize(workouts, options: settings);
     byte[] serializedBytes = Encoding.UTF8.GetBytes(serialized);
     DistributedCacheEntryOptions expiration = new DistributedCacheEntryOptions
     {
         AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(15),
         SlidingExpiration = TimeSpan.FromSeconds(15),
     };
-    await redis.SetAsync("customworkouts", serializedBytes,expiration);
+    await redis.SetAsync("customworkouts", serializedBytes, expiration);
 
     return Results.Ok(mapper.Map<List<CustomWorkoutReadDto>>(workouts));
 })
 .WithName("GetWorkouts");
 
-app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto workout, IGenericRepository<SpecificExercise> specExRepo, IGenericRepository<CustomWorkout> repo, IMapper mapper) =>
+app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto workout, IGenericRepository<SpecificExercise> specExRepo, IGenericRepository<CustomWorkout> repo, IMapper mapper, CustomWorkoutAzureBus bus) =>
 {
     if (workout is null)
     {
@@ -164,7 +164,7 @@ app.MapPost($"/api/{nameof(CustomWorkout)}", async (CustomWorkoutCreateUpdateDto
     var added = await repo.AddAsync(toAdd);
     workout.Id = added.Id;
 
-    CustomWorkoutAzureBus.SendToBus("customworkout", 1, workout);
+    bus.SendToBus("customworkout", 1, workout);
     return Results.Created($"/{nameof(CustomWorkout)}/{added.Id}", workout);
 })
 .WithName("PostWorkout");
@@ -179,7 +179,7 @@ app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan>
         return Results.Ok(mapper.Map<List<WorkoutPlanReadDto>>(listFromRedis));
     }
     var workoutsPlans = await repo.GetAsQueryable()
-                       .Include(c=>c.DoneWorkouts)
+                       .Include(c => c.DoneWorkouts)
                        .Include(c => c.Exercises)
                        .ThenInclude(a => a.Muscle)
                        .ToListAsync();
@@ -187,7 +187,7 @@ app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan>
     {
         ReferenceHandler = ReferenceHandler.IgnoreCycles
     };
-    var serialized = System.Text.Json.JsonSerializer.Serialize(workoutsPlans,settings);
+    var serialized = System.Text.Json.JsonSerializer.Serialize(workoutsPlans, settings);
     byte[] serializedBytes = Encoding.UTF8.GetBytes(serialized);
     DistributedCacheEntryOptions expiration = new DistributedCacheEntryOptions
     {
@@ -201,14 +201,14 @@ app.MapGet($"/api/{nameof(WorkoutPlan)}", async (IGenericRepository<WorkoutPlan>
 })
 .WithName("GetWorkoutsPlan");
 
-app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateDto plan, 
+app.MapPost($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanCreateDto plan,
     IGenericRepository<WorkoutPlan> planRepo, IGenericRepository<Exercise> exerciseRepo, IMapper mapper) =>
 {
     if (plan is null)
     {
         return Results.BadRequest();
     }
-    var exercises = await exerciseRepo.GetAsQueryable().Where(c=>plan.ExercisesIds.Contains(c.Id)).ToListAsync();
+    var exercises = await exerciseRepo.GetAsQueryable().Where(c => plan.ExercisesIds.Contains(c.Id)).ToListAsync();
     var toAdd = mapper.Map<WorkoutPlan>(plan);
 
 
@@ -226,14 +226,14 @@ app.MapPut($"/api/{nameof(WorkoutPlan)}", async (WorkoutPlanUpdateDto plan,
         return Results.BadRequest();
     }
 
-    var planToUpdate = await planRepo.GetAsQueryable().Include(c=>c.Exercises).Include(c=>c.DoneWorkouts).FirstOrDefaultAsync(c => c.Id == plan.Id);
+    var planToUpdate = await planRepo.GetAsQueryable().Include(c => c.Exercises).Include(c => c.DoneWorkouts).FirstOrDefaultAsync(c => c.Id == plan.Id);
 
-    if (!planToUpdate.Exercises.Select(c => c.Id).OrderBy(i=>i)
-    .SequenceEqual(plan.ExercisesIds.OrderBy(i=>i)))
+    if (!planToUpdate.Exercises.Select(c => c.Id).OrderBy(i => i)
+    .SequenceEqual(plan.ExercisesIds.OrderBy(i => i)))
     {
         planToUpdate.Exercises = await exerciseRepo.GetAsQueryable().Where(c => plan.ExercisesIds.Contains(c.Id)).ToListAsync();
     }
-    if(plan.DoneWorkoutsIds is not null)
+    if (plan.DoneWorkoutsIds is not null)
     {
         planToUpdate.DoneWorkouts = await customWorkoutRepo.GetAsQueryable().Where(c => plan.DoneWorkoutsIds.Contains(c.Id)).ToListAsync();
     }
@@ -260,7 +260,7 @@ app.MapPost($"/api/{nameof(SpecificExercise)}", async (IGenericRepository<Specif
         return Results.BadRequest();
     }
     var exercise = await exerciseRepo.GetByIdAsync(specificExercise.ExerciseId);
-    if(exercise == null)
+    if (exercise == null)
     {
         return Results.BadRequest();
     }
@@ -279,14 +279,14 @@ app.MapGet($"/api/{nameof(Exercise)}", async (IGenericRepository<Exercise> repo,
     return Results.Ok(mapper.Map<List<ExerciseReadDto>>(exercies));
 });
 
-app.MapPost($"/api/{nameof(Exercise)}", async (IGenericRepository<Exercise> repo, IGenericRepository<Muscle> muscleRepo ,IMapper mapper, ExerciseCreateUpdateDto exercise) =>
+app.MapPost($"/api/{nameof(Exercise)}", async (IGenericRepository<Exercise> repo, IGenericRepository<Muscle> muscleRepo, IMapper mapper, ExerciseCreateUpdateDto exercise) =>
 {
     if (exercise is null)
     {
         return Results.BadRequest();
     }
     var muscle = await muscleRepo.GetByIdAsync(exercise.MuscleId);
-    if(muscle is null)
+    if (muscle is null)
     {
         return Results.BadRequest();
     }

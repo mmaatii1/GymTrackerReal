@@ -65,6 +65,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\GymTracker.Shared\GymTracker.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <MauiXaml Update="Views\AddTraining.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
